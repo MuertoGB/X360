@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|c:\\users\\david roberts\\documents\\github\\x360\\x360\\x360\\resources.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|solutionrelative:x360\\resources.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|c:\\users\\david roberts\\documents\\github\\x360\\x360\\x360\\svod\\create.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|solutionrelative:x360\\svod\\create.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|c:\\users\\david roberts\\documents\\github\\x360\\x360\\x360\\fatx\\entries.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{404E4AEF-58CC-46F2-9B6A-83CE3774B94E}|X360\\X360.csproj|solutionrelative:x360\\fatx\\entries.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,27 +27,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Resources.cs",
-              "DocumentMoniker": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\Resources.cs",
-              "RelativeDocumentMoniker": "X360\\Resources.cs",
-              "ToolTip": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\Resources.cs*",
-              "RelativeToolTip": "X360\\Resources.cs*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAWAAAAAAAAAA==",
+              "Title": "Entries.cs",
+              "DocumentMoniker": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\FATX\\Entries.cs",
+              "RelativeDocumentMoniker": "X360\\FATX\\Entries.cs",
+              "ToolTip": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\FATX\\Entries.cs",
+              "RelativeToolTip": "X360\\FATX\\Entries.cs",
+              "ViewState": "AgIAANQAAAAAAAAAAAAgwOsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T23:28:17.379Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Create.cs",
-              "DocumentMoniker": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\SVOD\\Create.cs",
-              "RelativeDocumentMoniker": "X360\\SVOD\\Create.cs",
-              "ToolTip": "C:\\Users\\David Roberts\\Documents\\GitHub\\X360\\X360\\X360\\SVOD\\Create.cs",
-              "RelativeToolTip": "X360\\SVOD\\Create.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAAADsAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T23:24:34.837Z",
+              "WhenOpened": "2025-03-29T23:35:46.047Z",
               "EditorCaption": ""
             }
           ]
