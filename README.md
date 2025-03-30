@@ -1,5 +1,10 @@
-This is an archive of the source to DJ SkunkieButt's X360 .NET library and accompanying GUI program Le Fluffie.
-This source was previously available at [his site](http://skunkiebutt.com/) but has now been taken down.
-However, it is still available at the [Internet Archive](https://web.archive.org/web/*/http://skunkiebutt.com/).
+I still find Le Fluffie useful in 2025, so here are some expected changes by me:
 
-The code is available under the GPL version 3; see `X360/READ ME.txt` for details.
+Goals:
+
+1. Refactor and improve X360.
+2. Rewrite Le Fluffie, or at least vastly improve it.
+
+A time frame is not set.
+
+This code is available under the GPL version 3; see `X360/READ ME.txt` for details.
