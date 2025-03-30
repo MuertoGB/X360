@@ -1,0 +1,6 @@
+--------------------------------
+Namespace X360.FATX.FATXEntry
+--------------------------------
+
+- Old: xWriteEntry()
+- New: WriteEntryInternal()
