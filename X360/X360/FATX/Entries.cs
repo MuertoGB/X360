@@ -34,7 +34,7 @@ namespace X360.FATX
         internal int FXETimestampAccessed;
         internal bool FXEIsValid = false;
         internal bool FXEIsFolder = false;
-        FATXPartition FXEPartition;
+        internal FATXPartition FXEPartition;
         internal long FXEOffset;
         internal FATXDrive FXEDrive;
 
@@ -66,7 +66,7 @@ namespace X360.FATX
                     throw FATXExcepts.ValidExcept;
                 }
 
-                return StartBlock;
+                return FXEStartBlock;
             }
         }
 
@@ -82,7 +82,7 @@ namespace X360.FATX
                     throw FATXExcepts.ValidExcept;
                 }
 
-                return IsFolder;
+                return FXEIsFolder;
             }
         }
 
