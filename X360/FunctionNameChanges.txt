@@ -11,3 +11,6 @@ Namespace X360.FATX.FATXFileEntry
 
 - Old: xInject()
 - New: InjectInternal()
+
+- Old: xReplace()
+- New: ReplaceInternal()

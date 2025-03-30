@@ -25,18 +25,18 @@ namespace X360.FATX
     public class FATXEntry
     {
         #region Variables
-        internal byte FXNameLength;
-        internal string FXEntryName;
-        internal int FXEntrySize;
-        internal uint FXStartBlock;
-        internal int FXTimestampCreated;
-        internal int FXTimestampModified;
-        internal int FXTimestampAccessed;
-        internal bool FXIsValid = false;
-        internal bool FXIsFolder = false;
-        FATXPartition FXPartition;
-        internal long FXOffset;
-        internal FATXDrive FXDrive;
+        internal byte FXENameLength;
+        internal string FXEEntryName;
+        internal int FXEEntrySize;
+        internal uint FXEStartBlock;
+        internal int FXETimestampCreated;
+        internal int FXETimestampModified;
+        internal int FXETimestampAccessed;
+        internal bool FXEIsValid = false;
+        internal bool FXEIsFolder = false;
+        FATXPartition FXEPartition;
+        internal long FXEOffset;
+        internal FATXDrive FXEDrive;
 
         /// <summary>
         /// Entry Size
@@ -45,12 +45,12 @@ namespace X360.FATX
         {
             get
             {
-                if (!FXIsValid)
+                if (!FXEIsValid)
                 {
                     throw FATXExcepts.ValidExcept;
                 }
 
-                return FXEntrySize;
+                return FXEEntrySize;
             }
         }
 
@@ -61,7 +61,7 @@ namespace X360.FATX
         {
             get
             {
-                if (!FXIsValid)
+                if (!FXEIsValid)
                 {
                     throw FATXExcepts.ValidExcept;
                 }
@@ -77,7 +77,7 @@ namespace X360.FATX
         {
             get
             {
-                if (!FXIsValid)
+                if (!FXEIsValid)
                 {
                     throw FATXExcepts.ValidExcept;
                 }
@@ -93,12 +93,12 @@ namespace X360.FATX
         {
             get
             {
-                if (!FXIsValid)
+                if (!FXEIsValid)
                 {
                     throw FATXExcepts.ValidExcept;
                 }
 
-                return FXEntryName;
+                return FXEEntryName;
             }
             set
             {
@@ -107,11 +107,11 @@ namespace X360.FATX
                     value = value.Substring(0, 0x2A);
                 }
 
-                FXEntryName = value;
+                FXEEntryName = value;
 
-                if (FXNameLength != 0xE5)
+                if (FXENameLength != 0xE5)
                 {
-                    FXNameLength = (byte)value.Length;
+                    FXENameLength = (byte)value.Length;
                 }
             }
         }
@@ -123,114 +123,114 @@ namespace X360.FATX
         {
             get
             {
-                return FXPartition;
+                return FXEPartition;
             }
         }
         #endregion
 
         internal FATXEntry(ref FATXEntry entry, ref FATXDrive drive)
         {
-            FXOffset = entry.FXOffset;
-            FXNameLength = entry.FXNameLength;
-            FXEntryName = entry.FXEntryName;
-            FXStartBlock = entry.StartBlock;
-            FXEntrySize = entry.FXEntrySize;
-            FXTimestampCreated = entry.FXTimestampCreated;
-            FXTimestampModified = entry.FXTimestampModified;
-            FXTimestampAccessed = entry.FXTimestampAccessed;
-            FXIsValid = entry.FXIsValid;
-            FXIsFolder = entry.IsFolder;
-            FXPartition = entry.FXPartition;
-            FXDrive = entry.FXDrive;
+            FXEOffset = entry.FXEOffset;
+            FXENameLength = entry.FXENameLength;
+            FXEEntryName = entry.FXEEntryName;
+            FXEStartBlock = entry.StartBlock;
+            FXEEntrySize = entry.FXEEntrySize;
+            FXETimestampCreated = entry.FXETimestampCreated;
+            FXETimestampModified = entry.FXETimestampModified;
+            FXETimestampAccessed = entry.FXETimestampAccessed;
+            FXEIsValid = entry.FXEIsValid;
+            FXEIsFolder = entry.IsFolder;
+            FXEPartition = entry.FXEPartition;
+            FXEDrive = entry.FXEDrive;
         }
 
         internal FATXEntry(long position, byte[] buffer, ref FATXDrive drive)
         {
-            FXDrive = drive;
-            FXOffset = position;
+            FXEDrive = drive;
+            FXEOffset = position;
 
             try
             {
                 FXIO ioStream = new FXIO(buffer, true);
-                FXNameLength = ioStream.ReadByte();
+                FXENameLength = ioStream.ReadByte();
 
                 // Validate name length
-                if (FXNameLength == 0xE5 || FXNameLength == 0xFF || FXNameLength == 0 || FXNameLength > 0x2A)
+                if (FXENameLength == 0xE5 || FXENameLength == 0xFF || FXENameLength == 0 || FXENameLength > 0x2A)
                 {
                     return;
                 }
 
                 byte attributeFlag = (byte)((ioStream.ReadByte() >> 4) & 1);
-                byte actualNameLength = (byte)(FXNameLength & 0x3F);
-                FXEntryName = ioStream.ReadString(StringForm.ASCII, actualNameLength);
-                FXEntryName.IsValidXboxName();
+                byte actualNameLength = (byte)(FXENameLength & 0x3F);
+                FXEEntryName = ioStream.ReadString(StringForm.ASCII, actualNameLength);
+                FXEEntryName.IsValidXboxName();
 
                 ioStream.Position = 0x2C;
-                FXStartBlock = ioStream.ReadUInt32();
+                FXEStartBlock = ioStream.ReadUInt32();
 
                 // Check for invalid start block
-                if (FXStartBlock == Constants.FATX32End)
+                if (FXEStartBlock == Constants.FATX32End)
                 {
                     return;
                 }
 
-                FXEntrySize = ioStream.ReadInt32();
-                FXTimestampCreated = ioStream.ReadInt32();
-                FXTimestampModified = ioStream.ReadInt32();
-                FXTimestampAccessed = ioStream.ReadInt32();
+                FXEEntrySize = ioStream.ReadInt32();
+                FXETimestampCreated = ioStream.ReadInt32();
+                FXETimestampModified = ioStream.ReadInt32();
+                FXETimestampAccessed = ioStream.ReadInt32();
 
-                FXIsFolder = attributeFlag == 1;
+                FXEIsFolder = attributeFlag == 1;
 
                 // Validate entry size if not a folder
-                if (!FXIsFolder && FXEntrySize == 0)
+                if (!FXEIsFolder && FXEEntrySize == 0)
                 {
                     return;
                 }
 
-                FXIsValid = true;
+                FXEIsValid = true;
             }
             catch
             {
-                FXIsValid = false;
+                FXEIsValid = false;
             }
         }
 
         internal FATXEntry(string entryName, uint startBlock, int entrySize, long position, bool isFolder, ref FATXDrive drive)
         {
             int currentTimeStamp = TimeStamps.FatTimeInt(DateTime.Now);
-            FXTimestampCreated = currentTimeStamp;
-            FXTimestampModified = currentTimeStamp;
-            FXTimestampAccessed = currentTimeStamp;
+            FXETimestampCreated = currentTimeStamp;
+            FXETimestampModified = currentTimeStamp;
+            FXETimestampAccessed = currentTimeStamp;
 
             Name = entryName;
 
-            FXStartBlock = startBlock;
-            FXEntrySize = (FXIsFolder = isFolder) ? 0 : entrySize;
-            FXOffset = position;
-            FXIsValid = true;
-            FXDrive = drive;
+            FXEStartBlock = startBlock;
+            FXEEntrySize = (FXEIsFolder = isFolder) ? 0 : entrySize;
+            FXEOffset = position;
+            FXEIsValid = true;
+            FXEDrive = drive;
         }
 
         internal void SetAttributes(FATXPartition partition)
         {
-            FXPartition = partition;
+            FXEPartition = partition;
         }
 
         internal byte[] GetData()
         {
             List<byte> dataBytes = new List<byte>
             {
-                FXNameLength,
-                (byte)((FXIsFolder ? 1 : 0) << 4)
+                FXENameLength,
+                (byte)((FXEIsFolder ? 1 : 0) << 4)
             };
 
-            dataBytes.AddRange(Encoding.ASCII.GetBytes(FXEntryName));
-            dataBytes.AddRange(new byte[0x2A - FXEntryName.Length]);
-            dataBytes.AddRange(BitConv.GetBytes(FXStartBlock, true));
-            dataBytes.AddRange(BitConv.GetBytes(FXEntrySize, true));
-            dataBytes.AddRange(BitConv.GetBytes(FXTimestampCreated, true));
-            dataBytes.AddRange(BitConv.GetBytes(FXTimestampModified, true));
-            dataBytes.AddRange(BitConv.GetBytes(FXTimestampAccessed, true));
+            dataBytes.AddRange(Encoding.ASCII.GetBytes(FXEEntryName));
+            dataBytes.AddRange(new byte[0x2A - FXEEntryName.Length]);
+            dataBytes.AddRange(BitConv.GetBytes(FXEStartBlock, true));
+            dataBytes.AddRange(BitConv.GetBytes(FXEEntrySize, true));
+            dataBytes.AddRange(BitConv.GetBytes(FXETimestampCreated, true));
+            dataBytes.AddRange(BitConv.GetBytes(FXETimestampModified, true));
+            dataBytes.AddRange(BitConv.GetBytes(FXETimestampAccessed, true));
             return dataBytes.ToArray();
         }
 
@@ -239,9 +239,9 @@ namespace X360.FATX
             try
             {
                 byte[] entryData = GetData();
-                FXDrive.GetIO();
-                FXDrive.xIO.Position = FXOffset;
-                FXDrive.xIO.Write(entryData);
+                FXEDrive.GetIO();
+                FXEDrive.FXDIO.Position = FXEOffset;
+                FXEDrive.FXDIO.Write(entryData);
                 return true;
             }
             catch
@@ -256,12 +256,12 @@ namespace X360.FATX
         /// <returns></returns>
         public bool WriteEntry()
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
             {
                 return false;
             }
 
-            return (WriteEntryInternal() & !(FXDrive.xActive = false));
+            return (WriteEntryInternal() & !(FXEDrive.Active = false));
         }
     }
 
@@ -270,68 +270,68 @@ namespace X360.FATX
     /// </summary>
     public sealed class FATXFileEntry : FATXEntry
     {
-        internal FATXFileEntry(FATXEntry x, ref FATXDrive xdrive) : base(ref x, ref xdrive) { }
+        internal FATXFileEntry(FATXEntry entry, ref FATXDrive drive) : base(ref entry, ref drive) { }
 
         /// <summary>
         /// Overwrite the file
         /// </summary>
-        /// <param name="inFile"></param>
+        /// <param name="file"></param>
         /// <returns></returns>
-        public bool Inject(string inFile)
+        public bool Inject(string file)
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
             {
                 return false;
             }
 
-            FXIO fxIO;
+            FXIO io;
 
             try
             {
-                fxIO = new FXIO(inFile, DJFileMode.Open, true);
+                io = new FXIO(file, DJFileMode.Open, true);
             }
             catch
             {
-                return FXDrive.xActive = false;
+                return FXEDrive.Active = false;
             }
 
-            if (fxIO == null || !fxIO.Accessed)
+            if (io == null || !io.Accessed)
             {
-                return FXDrive.xActive = false;
+                return FXEDrive.Active = false;
             }
 
             try
             {
-                return InjectInternal(fxIO) & !(FXDrive.xActive = false);
+                return InjectInternal(io) & !(FXEDrive.Active = false);
             }
             catch
             {
-                fxIO.Close();
-                return FXDrive.xActive = false;
+                io.Close();
+                return FXEDrive.Active = false;
             }
         }
 
-        internal bool InjectInternal(FXIO inIO)
+        internal bool InjectInternal(FXIO inputIO)
         {
-            List<uint> blockChain = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
+            List<uint> blockChain = new List<uint>(Partition.FXPAllocTable.GetBlocks(StartBlock));
 
             if (blockChain.Count == 0)
             {
                 throw new Exception("No blocks found in the partition table.");
             }
 
-            uint requiredBlockCount = inIO.BlockCountFATX(Partition);
+            uint requiredBlockCount = inputIO.BlockCountFATX(Partition);
 
             if (blockChain.Count < requiredBlockCount)
             {
-                uint[] additionalBlocks = Partition.xTable.GetNewBlockChain((uint)(requiredBlockCount - blockChain.Count), 1);
+                uint[] additionalBlocks = Partition.FXPAllocTable.GetNewBlockChain((uint)(requiredBlockCount - blockChain.Count), 1);
                 if (additionalBlocks.Length == 0)
                 {
                     throw new Exception("Failed to retrieve new block chain.");
-                }            
+                }
                 blockChain.AddRange(additionalBlocks);
                 uint[] updatedBlockChain = blockChain.ToArray();
-                if (!Partition.xTable.WriteChain(ref updatedBlockChain))
+                if (!Partition.FXPAllocTable.WriteChain(ref updatedBlockChain))
                 {
                     throw new Exception("Failed to write the block chain.");
                 }
@@ -344,86 +344,112 @@ namespace X360.FATX
                     blocksToRelease[(int)i] = i;
                     blockChain.RemoveAt((int)i--);
                 }
-                if (!Partition.xTable.DC(ref blocksToRelease))
+                if (!Partition.FXPAllocTable.DC(ref blocksToRelease))
                 {
                     throw new Exception("Failed to release unneeded blocks.");
                 }
             }
 
-            inIO.Position = 0;
-            FXDrive.GetIO();
+            inputIO.Position = 0;
+            FXEDrive.GetIO();
             foreach (uint blockIndex in blockChain)
             {
-                FXDrive.xIO.Position = Partition.BlockToOffset(blockIndex);
-                FXDrive.xIO.Write(inIO.ReadBytes(Partition.xBlockSize));
+                FXEDrive.FXDIO.Position = Partition.BlockToOffset(blockIndex);
+                FXEDrive.FXDIO.Write(inputIO.ReadBytes(Partition.xBlockSize));
             }
 
-            if ((FXEntrySize == 0 || (uint)(((FXEntrySize - 1) / Partition.xBlockSize) + 1) != requiredBlockCount) && !Partition.WriteAllocTable())
+            if ((FXEEntrySize == 0 || (uint)(((FXEEntrySize - 1) / Partition.xBlockSize) + 1) != requiredBlockCount) && !Partition.WriteAllocTable())
             {
                 throw new Exception("Failed to write allocation table.");
             }
 
-            FXEntrySize = (int)inIO.Length;
-            inIO.Close();
+            FXEEntrySize = (int)inputIO.Length;
+            inputIO.Close();
             return WriteEntryInternal();
         }
 
         /// <summary>
         /// Replace the file
         /// </summary>
-        /// <param name="inFile"></param>
+        /// <param name="file"></param>
         /// <returns></returns>
-        public bool Replace(string inFile)
+        public bool Replace(string file)
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
             {
                 return false;
             }
 
-            FXIO inIO;
+            FXIO io;
 
             try
             {
-                inIO = new FXIO(inFile, DJFileMode.Open, true);
+                io = new FXIO(file, DJFileMode.Open, true);
             }
             catch
             {
-                return FXDrive.xActive = false;
+                return FXEDrive.Active = false;
             }
-            if (inIO == null || !inIO.Accessed)
+            if (io == null || !io.Accessed)
             {
-                return FXDrive.xActive = false;
+                return FXEDrive.Active = false;
             }
 
-            return xReplace(inIO) & !(FXDrive.xActive = false);
+            return ReplaceInternal(io) & !(FXEDrive.Active = false);
         }
 
-        internal bool xReplace(FXIO xIOIn)
+        internal bool ReplaceInternal(FXIO inputIO)
         {
-            uint bu = StartBlock;
-            int size = FXEntrySize;
+            uint originalStartBlock = StartBlock;
+            int originalEntrySize = FXEEntrySize;
+
             try
             {
-                uint[] curblocks = Partition.xTable.GetBlocks(StartBlock);
-                uint[] blocks = Partition.xTable.GetNewBlockChain(xIOIn.BlockCountFATX(Partition), 1);
-                if (blocks.Length == 0)
-                    throw new Exception();
-                if (!Partition.xTable.WriteChain(ref blocks))
-                    throw new Exception();
-                if (!Partition.xTable.DC(ref curblocks))
-                    throw new Exception();
-                xIOIn.Position = 0;
-                FXDrive.GetIO();
-                if (!Partition.WriteFile(blocks, ref xIOIn))
-                    throw new Exception();
+                uint[] currentBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
+                uint[] newBlocks = Partition.FXPAllocTable.GetNewBlockChain(inputIO.BlockCountFATX(Partition), 1);
+
+                if (newBlocks.Length == 0)
+                {
+                    throw new Exception("Failed to retrieve new blocks for replacement.");
+                }
+
+                if (!Partition.FXPAllocTable.WriteChain(ref newBlocks))
+                {
+                    throw new Exception("Failed to write the new block chain.");
+                }
+
+                if (!Partition.FXPAllocTable.DC(ref currentBlocks))
+                {
+                    throw new Exception("Failed to decommission current blocks.");
+                }
+
+                inputIO.Position = 0;
+                FXEDrive.GetIO();
+
+                if (!Partition.WriteFile(newBlocks, ref inputIO))
+                {
+                    throw new Exception("Failed to write file data to the new blocks.");
+                }
+
                 if (!Partition.WriteAllocTable())
-                    throw new Exception();
-                FXStartBlock = blocks[0];
-                base.FXEntrySize = (int)xIOIn.Length;
-                xIOIn.Close();
+                {
+                    throw new Exception("Failed to write the allocation table.");
+                }
+
+                FXEStartBlock = newBlocks[0];
+                FXEEntrySize = (int)inputIO.Length;
+
+                inputIO.Close();
                 return WriteEntryInternal();
             }
-            catch { xIOIn.Close(); FXStartBlock = bu; base.FXEntrySize = size; return false; }
+            catch
+            {
+                // Rollback in case of failure
+                inputIO.Close();
+                FXEStartBlock = originalStartBlock;
+                FXEEntrySize = originalEntrySize;
+                return false;
+            }
         }
 
         /// <summary>
@@ -432,71 +458,115 @@ namespace X360.FATX
         /// <returns></returns>
         public bool Delete()
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
+            {
                 return false;
+            }
+
             try
             {
-                uint[] blocks = Partition.xTable.GetBlocks(StartBlock);
-                if (blocks.Length == 0 || !Partition.xTable.DC(ref blocks) || !Partition.WriteAllocTable())
-                    return (FXDrive.xActive = false);
-                FXNameLength = 0xE5;
+                uint[] entryBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
+
+                if (entryBlocks.Length == 0 || !Partition.FXPAllocTable.DC(ref entryBlocks) || !Partition.WriteAllocTable())
+                {
+                    return FXEDrive.Active = false;
+                }
+
+                FXENameLength = 0xE5;
+
                 if (!WriteEntryInternal())
-                    return (FXDrive.xActive = false);
-                return !(FXDrive.xActive = false);
+                {
+                    return FXEDrive.Active = false;
+                }
+
+                return !(FXEDrive.Active = false);
             }
-            catch { return (FXDrive.xActive = false); }
+
+            catch
+            {
+                return FXEDrive.Active = false;
+            }
         }
 
-        internal bool xExtract(ref FXIO xIOOut)
+        internal bool Extract(ref FXIO outputIO)
         {
             try
             {
-                xIOOut.Position = 0;
-                uint[] xChain = Partition.xTable.GetBlocks(StartBlock);
-                uint xct = (uint)(((FXEntrySize - 1) / Partition.xBlockSize) + 1);
-                if (xChain.Length < xct)
-                    return false;
-                FXDrive.GetIO();
-                for (uint i = 0; i < xct - 1; i++)
+                outputIO.Position = 0;
+
+                uint[] blockChain = Partition.FXPAllocTable.GetBlocks(StartBlock);
+
+                // Calculate the number of blocks required for the entry
+                uint requiredBlockCount = (uint)(((FXEEntrySize - 1) / Partition.xBlockSize) + 1);
+
+                // If there are not enough blocks, return false
+                if (blockChain.Length < requiredBlockCount)
                 {
-                    FXDrive.xIO.Position = Partition.BlockToOffset(xChain[(int)i]);
-                    xIOOut.Write(FXDrive.xIO.ReadBytes(Partition.xBlockSize));
+                    return false;
                 }
-                int xleft = (int)(((FXEntrySize - 1) % Partition.xBlockSize) + 1);
-                FXDrive.xIO.Position = Partition.BlockToOffset(xChain[(int)xct - 1]);
-                xIOOut.Write(FXDrive.xIO.ReadBytes(xleft));
-                xIOOut.Flush();
+
+                FXEDrive.GetIO();
+
+                for (uint i = 0; i < requiredBlockCount - 1; i++)
+                {
+                    FXEDrive.FXDIO.Position = Partition.BlockToOffset(blockChain[i]);
+                    outputIO.Write(FXEDrive.FXDIO.ReadBytes(Partition.xBlockSize));
+                }
+
+                int remainingBytes = (int)(((FXEEntrySize - 1) % Partition.xBlockSize) + 1);
+                FXEDrive.FXDIO.Position = Partition.BlockToOffset(blockChain[requiredBlockCount - 1]);
+                outputIO.Write(FXEDrive.FXDIO.ReadBytes(remainingBytes));
+
+                outputIO.Flush();
+
                 return true;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
+
 
         /// <summary>
         /// Extract the file
         /// </summary>
-        /// <param name="OutLocation"></param>
+        /// <param name="outLocation"></param>
         /// <returns></returns>
-        public bool Extract(string OutLocation)
+        public bool Extract(string outLocation)
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
+            {
                 return false;
-            bool xReturn = false;
-            FXIO xIO = new FXIO(true);
+            }
+
+            FXIO io = new FXIO(true);
+
+            bool extractSuccess;
+
             try
             {
-                xReturn = xExtract(ref xIO);
-                xIO.Close();
-                if (xReturn)
-                    xReturn = VariousFunctions.MoveFile(xIO.FileNameLong, OutLocation);
+                extractSuccess = Extract(ref io);
+                io.Close();
+
+                if (extractSuccess)
+                {
+                    extractSuccess = VariousFunctions.MoveFile(io.FileNameLong, outLocation);
+                }
             }
             catch
             {
-                xIO.Close();
-                xReturn = false;
+                io.Close();
+                extractSuccess = false;
             }
-            VariousFunctions.DeleteFile(xIO.FileNameLong);
-            FXDrive.xActive = false;
-            return xReturn;
+            finally
+            {
+                // Ensure file deletion and drive deactivation
+                VariousFunctions.DeleteFile(io.FileNameLong);
+                FXEDrive.Active = false;
+            }
+
+            return extractSuccess;
         }
 
         /// <summary>
@@ -505,18 +575,18 @@ namespace X360.FATX
         /// <returns></returns>
         public string GetSTFSName()
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
                 return null;
             string xReturn = null;
             try
             {
-                if (FXEntrySize < 0x500)
+                if (FXEEntrySize < 0x500)
                     throw new Exception();
-                FXDrive.GetIO();
-                uint[] blocks = Partition.xTable.GetBlocks(StartBlock);
+                FXEDrive.GetIO();
+                uint[] blocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
                 if (blocks.Length == 0)
                     throw new Exception();
-                FXDrive.xActive = false;
+                FXEDrive.Active = false;
                 FATXStreamIO io = new FATXStreamIO(this, ref blocks, true);
                 uint xBuff = io.ReadUInt32();
                 if (xBuff != (uint)STFS.PackageMagic.CON &&
@@ -607,10 +677,10 @@ namespace X360.FATX
                 }
                 xReturn = ua.GetGamertag();
                 io.Close();
-                FXDrive.xActive = false;
+                FXEDrive.Active = false;
                 return xReturn;
             }
-            catch { FXDrive.xActive = false; return xReturn; }
+            catch { FXEDrive.Active = false; return xReturn; }
         }
     }
 
@@ -655,10 +725,10 @@ namespace X360.FATX
         /// <returns></returns>
         public FATXReadContents Read()
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
                 return null;
             FATXReadContents xReturn = xRead();
-            FXDrive.xActive = false;
+            FXEDrive.Active = false;
             return xReturn;
         }
 
@@ -667,9 +737,9 @@ namespace X360.FATX
             FATXReadContents xreturn = new FATXReadContents();
             try
             {
-                FXDrive.GetIO();
+                FXEDrive.GetIO();
                 List<FATXEntry> xEntries = new List<FATXEntry>();
-                uint[] xBlocks = Partition.xTable.GetBlocks(StartBlock);
+                uint[] xBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
                 for (int i = 0; i < xBlocks.Length; i++)
                 {
                     long xCurrent = Partition.BlockToOffset(xBlocks[i]);
@@ -677,12 +747,12 @@ namespace X360.FATX
                         break;
                     for (int x = 0; x < Partition.xEntryCount; x++)
                     {
-                        FXDrive.xIO.Position = xCurrent + (0x40 * x);
-                        FATXEntry z = new FATXEntry((xCurrent + (0x40 * x)), FXDrive.xIO.ReadBytes(0x40), ref FXDrive);
+                        FXEDrive.FXDIO.Position = xCurrent + (0x40 * x);
+                        FATXEntry z = new FATXEntry((xCurrent + (0x40 * x)), FXEDrive.FXDIO.ReadBytes(0x40), ref FXEDrive);
                         z.SetAttributes(Partition);
-                        if (z.FXIsValid)
+                        if (z.FXEIsValid)
                             xEntries.Add(z);
-                        else if (z.FXNameLength != 0xE5)
+                        else if (z.FXENameLength != 0xE5)
                             break;
                     }
                 }
@@ -691,8 +761,8 @@ namespace X360.FATX
                 for (int i = 0; i < xEntries.Count; i++)
                 {
                     if (xEntries[i].IsFolder)
-                        xreturn.xfolds.Add(new FATXFolderEntry(xEntries[i], ref FXDrive));
-                    else xreturn.xfiles.Add(new FATXFileEntry(xEntries[i], ref FXDrive));
+                        xreturn.xfolds.Add(new FATXFolderEntry(xEntries[i], ref FXEDrive));
+                    else xreturn.xfiles.Add(new FATXFileEntry(xEntries[i], ref FXEDrive));
                 }
                 return xreturn;
             }
@@ -707,28 +777,28 @@ namespace X360.FATX
         long GetNewEntryPos(out uint block)
         {
             block = 0;
-            List<uint> xFileBlocks = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
-            FXDrive.GetIO();
+            List<uint> xFileBlocks = new List<uint>(Partition.FXPAllocTable.GetBlocks(StartBlock));
+            FXEDrive.GetIO();
             // Searches current allocated blocks
             for (int x = 0; x < xFileBlocks.Count; x++)
             {
                 long xCurOffset = Partition.BlockToOffset(xFileBlocks[x]);
                 for (int i = 0; i < Partition.xEntryCount; i++)
                 {
-                    FXDrive.xIO.Position = xCurOffset + (0x40 * i);
-                    byte xCheck = FXDrive.xIO.ReadByte();
+                    FXEDrive.FXDIO.Position = xCurOffset + (0x40 * i);
+                    byte xCheck = FXEDrive.FXDIO.ReadByte();
                     if (xCheck == 0 || xCheck > 0x2A || xCheck == 0xFF)
-                        return --FXDrive.xIO.Position;
+                        return --FXEDrive.FXDIO.Position;
                 }
             }
-            uint[] xBlock = Partition.xTable.GetNewBlockChain(1, 1);
+            uint[] xBlock = Partition.FXPAllocTable.GetNewBlockChain(1, 1);
             if (xBlock.Length > 0)
             {
                 // Nulls out a new block and returns the start of the new block
-                FXDrive.xIO.Position = Partition.BlockToOffset(xBlock[0]);
+                FXEDrive.FXDIO.Position = Partition.BlockToOffset(xBlock[0]);
                 //List<byte> xbuff = new List<byte>();
                 byte[] xnull = new byte[Partition.xBlockSize];
-                FXDrive.xIO.Write(xnull);
+                FXEDrive.FXDIO.Write(xnull);
                 xFileBlocks.Add(xBlock[0]);
                 block = xBlock[0];
                 return Partition.BlockToOffset(xBlock[0]); // Returns the beginning of the allocated block
@@ -747,7 +817,7 @@ namespace X360.FATX
         public bool AddFolder(string FolderName)
         {
             FolderName.IsValidXboxName();
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
                 return false;
             try
             {
@@ -755,36 +825,36 @@ namespace X360.FATX
                 foreach (FATXFolderEntry x in xconts.xfolds)
                 {
                     if (x.Name == FolderName)
-                        return (FXDrive.xActive = false);
+                        return (FXEDrive.Active = false);
                 }
                 FXIO xIOIn = new FXIO(new byte[Partition.xBlockSize], true);
                 uint xnew = 0;
                 long xpos = GetNewEntryPos(out xnew);
                 if (xpos == -1)
-                    return (FXDrive.xActive = false);
-                uint[] blocks = Partition.xTable.GetNewBlockChain(xIOIn.BlockCountFATX(Partition), xnew + 1);
+                    return (FXEDrive.Active = false);
+                uint[] blocks = Partition.FXPAllocTable.GetNewBlockChain(xIOIn.BlockCountFATX(Partition), xnew + 1);
                 if (blocks.Length == 0)
-                    return (FXDrive.xActive = false);
+                    return (FXEDrive.Active = false);
                 if (!Partition.WriteFile(blocks, ref xIOIn))
-                    return (FXDrive.xActive = false);
-                FATXEntry y = new FATXEntry(FolderName, blocks[0], (int)xIOIn.Length, xpos, true, ref FXDrive);
+                    return (FXEDrive.Active = false);
+                FATXEntry y = new FATXEntry(FolderName, blocks[0], (int)xIOIn.Length, xpos, true, ref FXEDrive);
                 if (!y.WriteEntryInternal())
-                    return (FXDrive.xActive = false);
+                    return (FXEDrive.Active = false);
                 if (xnew > 0)
                 {
-                    List<uint> fileblocks = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
+                    List<uint> fileblocks = new List<uint>(Partition.FXPAllocTable.GetBlocks(StartBlock));
                     fileblocks.Add(xnew);
                     uint[] xtemp = fileblocks.ToArray();
-                    if (!Partition.xTable.WriteChain(ref xtemp))
-                        return (FXDrive.xActive = false);
+                    if (!Partition.FXPAllocTable.WriteChain(ref xtemp))
+                        return (FXEDrive.Active = false);
                 }
-                if (!Partition.xTable.WriteChain(ref blocks))
-                    return (FXDrive.xActive = false);
+                if (!Partition.FXPAllocTable.WriteChain(ref blocks))
+                    return (FXEDrive.Active = false);
                 if (Partition.WriteAllocTable())
-                    return !(FXDrive.xActive = false);
-                return (FXDrive.xActive = false);
+                    return !(FXEDrive.Active = false);
+                return (FXEDrive.Active = false);
             }
-            catch { return FXDrive.xActive = false; }
+            catch { return FXEDrive.Active = false; }
         }
 
         /// <summary>
@@ -797,11 +867,11 @@ namespace X360.FATX
         public bool AddFile(string FileName, string FileLocation, AddType xType)
         {
             FileName.IsValidXboxName();
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
                 return false;
             FXIO xIOIn = null;
             try { xIOIn = new FXIO(FileLocation, DJFileMode.Open, true); }
-            catch { return (FXDrive.xActive = false); }
+            catch { return (FXEDrive.Active = false); }
             try
             {
                 FATXReadContents xconts = xRead();
@@ -811,40 +881,40 @@ namespace X360.FATX
                     {
                         bool xreturn = false;
                         if (xType == AddType.NoOverWrite)
-                            return (FXDrive.xActive = false);
+                            return (FXEDrive.Active = false);
                         else if (xType == AddType.Inject)
                             xreturn = x.InjectInternal(xIOIn);
-                        else xreturn = x.xReplace(xIOIn);
-                        return (xreturn & !(FXDrive.xActive = false));
+                        else xreturn = x.ReplaceInternal(xIOIn);
+                        return (xreturn & !(FXEDrive.Active = false));
                     }
                 }
                 uint xnew = 0;
                 long xpos = GetNewEntryPos(out xnew);
                 if (xpos == -1)
-                    return (FXDrive.xActive = false);
-                uint[] blocks = Partition.xTable.GetNewBlockChain(xIOIn.BlockCountFATX(Partition), xnew + 1);
+                    return (FXEDrive.Active = false);
+                uint[] blocks = Partition.FXPAllocTable.GetNewBlockChain(xIOIn.BlockCountFATX(Partition), xnew + 1);
                 if (blocks.Length == 0)
-                    return (FXDrive.xActive = false);
+                    return (FXEDrive.Active = false);
                 if (!Partition.WriteFile(blocks, ref xIOIn))
-                    return (FXDrive.xActive = false);
-                FATXEntry y = new FATXEntry(FileName, blocks[0], (int)xIOIn.Length, xpos, false, ref FXDrive);
+                    return (FXEDrive.Active = false);
+                FATXEntry y = new FATXEntry(FileName, blocks[0], (int)xIOIn.Length, xpos, false, ref FXEDrive);
                 if (!y.WriteEntryInternal())
-                    return (FXDrive.xActive = false);
+                    return (FXEDrive.Active = false);
                 if (xnew > 0)
                 {
-                    List<uint> fileblocks = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
+                    List<uint> fileblocks = new List<uint>(Partition.FXPAllocTable.GetBlocks(StartBlock));
                     fileblocks.Add(xnew);
                     uint[] xtemp = fileblocks.ToArray();
-                    if (!Partition.xTable.WriteChain(ref xtemp))
-                        return (FXDrive.xActive = false);
+                    if (!Partition.FXPAllocTable.WriteChain(ref xtemp))
+                        return (FXEDrive.Active = false);
                 }
-                if (!Partition.xTable.WriteChain(ref blocks))
-                    return (FXDrive.xActive = false);
+                if (!Partition.FXPAllocTable.WriteChain(ref blocks))
+                    return (FXEDrive.Active = false);
                 if (Partition.WriteAllocTable())
-                    return !(FXDrive.xActive = false);
-                return (FXDrive.xActive = false);
+                    return !(FXEDrive.Active = false);
+                return (FXEDrive.Active = false);
             }
-            catch { xIOIn.Close(); return (FXDrive.xActive = false); }
+            catch { xIOIn.Close(); return (FXEDrive.Active = false); }
         }
 
         bool xExtract(string xOut, bool Sub)
@@ -859,7 +929,7 @@ namespace X360.FATX
                 FXIO xIOOut = new FXIO(xOut + "/" + x.Name, DJFileMode.Create, true);
                 if (!xIOOut.Accessed)
                     continue;
-                x.xExtract(ref xIOOut);
+                x.Extract(ref xIOOut);
                 xIOOut.Dispose();
             }
             if (!Sub)
@@ -877,14 +947,14 @@ namespace X360.FATX
         /// <returns></returns>
         public bool Extract(string xOutPath, bool IncludeSubFolders)
         {
-            if (FXDrive.ActiveCheck())
+            if (FXEDrive.ActiveCheck())
                 return false;
             xOutPath = xOutPath.Replace('\\', '/');
             if (xOutPath[xOutPath.Length - 1] == '/')
-                xOutPath += FXEntryName;
-            else xOutPath += "/" + FXEntryName;
+                xOutPath += FXEEntryName;
+            else xOutPath += "/" + FXEEntryName;
             return (xExtract(xOutPath, IncludeSubFolders) &
-                !(FXDrive.xActive = false));
+                !(FXEDrive.Active = false));
         }
     }
 
@@ -894,119 +964,109 @@ namespace X360.FATX
     public sealed class FATXPartition
     {
         #region Variables
-        [CompilerGenerated]
-        long xBase;
-        [CompilerGenerated]
-        internal int xFATSize;
-        [CompilerGenerated]
-        uint SectorsPerBlock;
-        [CompilerGenerated]
-        internal List<FATXFolderEntry> xFolders;
-        [CompilerGenerated]
-        internal List<FATXFileEntry> xFiles;
-        [CompilerGenerated]
-        internal FATXType FatType = FATXType.None;
-        [CompilerGenerated]
-        internal FATXDrive xdrive;
-        [CompilerGenerated]
-        internal AllocationTable xTable;
-        [CompilerGenerated]
-        internal List<FATXPartition> xExtParts;
-        [CompilerGenerated]
-        string xName;
+        readonly long FXPBase;
+        internal int FXPFATSize;
+        readonly uint FXPSectorsPerBlock;
+        internal List<FATXFolderEntry> FXPFolders;
+        internal List<FATXFileEntry> FXPFiles;
+        internal FATXType FXPFatType = FATXType.None;
+        internal FATXDrive FXPDrive;
+        internal AllocationTable FXPAllocTable;
+        internal List<FATXPartition> FXPExtParts;
+        readonly string FXPName;
 
         /// <summary>
         /// Folders
         /// </summary>
-        public FATXFolderEntry[] Folders { get { return xFolders.ToArray(); } }
+        public FATXFolderEntry[] Folders { get { return FXPFolders.ToArray(); } }
         /// <summary>
         /// Files in the partition
         /// </summary>
-        public FATXFileEntry[] Files { get { return xFiles.ToArray(); } }
+        public FATXFileEntry[] Files { get { return FXPFiles.ToArray(); } }
         /// <summary>
         /// Subpartitions
         /// </summary>
-        public FATXPartition[] SubPartitions { get { return xExtParts.ToArray(); } }
-        internal long xFATLocale { get { return xBase + 0x1000; } }
-        long xDataStart { get { return xBase + 0x1000 + xFATSize; } }
-        internal int xBlockSize { get { return (int)(SectorsPerBlock * xdrive.SectorSize); } }
+        public FATXPartition[] SubPartitions { get { return FXPExtParts.ToArray(); } }
+        internal long xFATLocale { get { return FXPBase + 0x1000; } }
+        long xDataStart { get { return FXPBase + 0x1000 + FXPFATSize; } }
+        internal int xBlockSize { get { return (int)(FXPSectorsPerBlock * FXPDrive.SectorSize); } }
         internal short xEntryCount { get { return (short)(xBlockSize / 0x40); } }
         /// <summary>
         /// Valid instance
         /// </summary>
-        public bool IsValid { get { return (xFolders != null && xFiles != null && (xFolders.Count + xFiles.Count != 0)); } }
+        public bool IsValid { get { return (FXPFolders != null && FXPFiles != null && (FXPFolders.Count + FXPFiles.Count != 0)); } }
         /// <summary>
         /// Partition name
         /// </summary>
-        public string PartitionName { get { return xName; } }
+        public string PartitionName { get { return FXPName; } }
         #endregion
 
         internal FATXPartition(long xOffset, long xPartitionSize, FATXDrive xDrive, string xLocaleName)
         {
-            xdrive = xDrive;
-            xName = xLocaleName;
-            xBase = xOffset;
+            FXPDrive = xDrive;
+            FXPName = xLocaleName;
+            FXPBase = xOffset;
             xDrive.GetIO();
-            xDrive.xIO.IsBigEndian = true;
-            xDrive.xIO.Position = xOffset;
-            if (xDrive.xIO.ReadUInt32() != 0x58544146)
+            xDrive.FXDIO.IsBigEndian = true;
+            xDrive.FXDIO.Position = xOffset;
+            if (xDrive.FXDIO.ReadUInt32() != 0x58544146)
                 return;
-            xDrive.xIO.ReadBytes(4); // Partition ID
-            SectorsPerBlock = xDrive.xIO.ReadUInt32();
+            xDrive.FXDIO.ReadBytes(4); // Partition ID
+            FXPSectorsPerBlock = xDrive.FXDIO.ReadUInt32();
             uint blockct = (uint)(xPartitionSize / xBlockSize);
             if (blockct < 0xFFF5)
-                FatType = FATXType.FATX16;
-            else FatType = FATXType.FATX32;
-            uint dirblock = xdrive.xIO.ReadUInt32();
-            xFATSize = (int)(blockct * (byte)FatType);
-            xFATSize += (0x1000 - (xFATSize % 0x1000));
-            xTable = new AllocationTable(new FXIO(true), (uint)((xPartitionSize - 0x1000 - xFATSize) / xBlockSize), FatType);
-            xTable.xAllocTable.Position = 0;
-            xDrive.xIO.Position = xFATLocale;
-            for (int i = 0; i < xFATSize; i += 0x1000)
-                xTable.xAllocTable.Write(xdrive.xIO.ReadBytes(0x1000));
-            xTable.xAllocTable.Flush();
+                FXPFatType = FATXType.FATX16;
+            else FXPFatType = FATXType.FATX32;
+            uint dirblock = FXPDrive.FXDIO.ReadUInt32();
+            FXPFATSize = (int)(blockct * (byte)FXPFatType);
+            FXPFATSize += (0x1000 - (FXPFATSize % 0x1000));
+            FXPAllocTable = new AllocationTable(new FXIO(true), (uint)((xPartitionSize - 0x1000 - FXPFATSize) / xBlockSize), FXPFatType);
+            FXPAllocTable.xAllocTable.Position = 0;
+            xDrive.FXDIO.Position = xFATLocale;
+            for (int i = 0; i < FXPFATSize; i += 0x1000)
+                FXPAllocTable.xAllocTable.Write(FXPDrive.FXDIO.ReadBytes(0x1000));
+            FXPAllocTable.xAllocTable.Flush();
             long DirOffset = BlockToOffset(dirblock);
-            xFolders = new List<FATXFolderEntry>();
-            xFiles = new List<FATXFileEntry>();
+            FXPFolders = new List<FATXFolderEntry>();
+            FXPFiles = new List<FATXFileEntry>();
             List<FATXEntry> xEntries = new List<FATXEntry>();
             for (byte x = 0; x < xEntryCount; x++)
             {
-                xDrive.xIO.Position = DirOffset + (0x40 * x);
-                FATXEntry z = new FATXEntry((DirOffset + (0x40 * x)), xdrive.xIO.ReadBytes(0x40), ref xdrive);
+                xDrive.FXDIO.Position = DirOffset + (0x40 * x);
+                FATXEntry z = new FATXEntry((DirOffset + (0x40 * x)), FXPDrive.FXDIO.ReadBytes(0x40), ref FXPDrive);
                 z.SetAttributes(this);
-                if (z.FXIsValid)
+                if (z.FXEIsValid)
                     xEntries.Add(z);
-                else if (z.FXNameLength != 0xE5)
+                else if (z.FXENameLength != 0xE5)
                     break;
             }
             foreach (FATXEntry x in xEntries)
             {
                 if (x.IsFolder)
-                    xFolders.Add(new FATXFolderEntry(x, ref xdrive));
-                else xFiles.Add(new FATXFileEntry(x, ref xdrive));
+                    FXPFolders.Add(new FATXFolderEntry(x, ref FXPDrive));
+                else FXPFiles.Add(new FATXFileEntry(x, ref FXPDrive));
             }
-            xExtParts = new List<FATXPartition>();
-            for (int i = 0; i < xFiles.Count; i++)
+            FXPExtParts = new List<FATXPartition>();
+            for (int i = 0; i < FXPFiles.Count; i++)
             {
-                if (xFiles[i].Name.ToLower() != "extendedsystem.partition")
+                if (FXPFiles[i].Name.ToLower() != "extendedsystem.partition")
                     continue;
-                FATXPartition x = new FATXPartition(BlockToOffset(xFiles[i].StartBlock), xFiles[i].Size, xdrive, xFiles[i].Name);
+                FATXPartition x = new FATXPartition(BlockToOffset(FXPFiles[i].StartBlock), FXPFiles[i].Size, FXPDrive, FXPFiles[i].Name);
                 if (!x.IsValid)
                     continue;
-                xExtParts.Add(x);
-                xFiles.RemoveAt(i--);
+                FXPExtParts.Add(x);
+                FXPFiles.RemoveAt(i--);
             }
         }
 
         internal long BlockToOffset(uint xBlock)
         {
-            switch (FatType)
+            switch (FXPFatType)
             {
                 case FATXType.FATX16:
-                    return ((xBlock == Constants.FATX16End || xBlock == 0 || xBlock >= xTable.BlockCount) ? -1 : ((long)(xBlock - 1) * (long)xBlockSize) + xDataStart);
+                    return ((xBlock == Constants.FATX16End || xBlock == 0 || xBlock >= FXPAllocTable.BlockCount) ? -1 : ((long)(xBlock - 1) * (long)xBlockSize) + xDataStart);
                 case FATXType.FATX32:
-                    return ((xBlock == Constants.FATX32End || xBlock == 0 || xBlock >= xTable.BlockCount) ? -1 : ((long)(xBlock - 1) * (long)xBlockSize) + xDataStart);
+                    return ((xBlock == Constants.FATX32End || xBlock == 0 || xBlock >= FXPAllocTable.BlockCount) ? -1 : ((long)(xBlock - 1) * (long)xBlockSize) + xDataStart);
                 default: return -1;
             }
 
@@ -1016,13 +1076,13 @@ namespace X360.FATX
         {
             try
             {
-                xdrive.GetIO();
+                FXPDrive.GetIO();
                 for (int i = 0; i < xChain.Length; i++)
                 {
-                    xdrive.xIO.Position = BlockToOffset(xChain[i]);
+                    FXPDrive.FXDIO.Position = BlockToOffset(xChain[i]);
                     xIOIn.Position = (i * xBlockSize);
-                    xdrive.xIO.Write(xIOIn.ReadBytes(xBlockSize));
-                    xdrive.xIO.Flush();
+                    FXPDrive.FXDIO.Write(xIOIn.ReadBytes(xBlockSize));
+                    FXPDrive.FXDIO.Flush();
                 }
                 return true;
             }
@@ -1031,26 +1091,26 @@ namespace X360.FATX
 
         internal void RestoreAllocTable()
         {
-            string xfn = xTable.xAllocTable.FileNameLong;
-            xTable.xAllocTable.Close();
-            xTable.xAllocTable = new FXIO(xfn, DJFileMode.Create, true);
-            xdrive.GetIO();
-            xdrive.xIO.Position = xFATLocale;
-            xTable.xAllocTable.Write(xdrive.xIO.ReadBytes(xFATSize));
-            xTable.xAllocTable.Flush();
+            string xfn = FXPAllocTable.xAllocTable.FileNameLong;
+            FXPAllocTable.xAllocTable.Close();
+            FXPAllocTable.xAllocTable = new FXIO(xfn, DJFileMode.Create, true);
+            FXPDrive.GetIO();
+            FXPDrive.FXDIO.Position = xFATLocale;
+            FXPAllocTable.xAllocTable.Write(FXPDrive.FXDIO.ReadBytes(FXPFATSize));
+            FXPAllocTable.xAllocTable.Flush();
         }
 
         internal bool WriteAllocTable()
         {
             try
             {
-                xdrive.GetIO();
-                xdrive.xIO.Position = xFATLocale;
-                for (int i = 0; i < (((xFATSize - 1) / xdrive.SectorSize) + 1); i++)
+                FXPDrive.GetIO();
+                FXPDrive.FXDIO.Position = xFATLocale;
+                for (int i = 0; i < (((FXPFATSize - 1) / FXPDrive.SectorSize) + 1); i++)
                 {
-                    xTable.xAllocTable.Position = i * xdrive.SectorSize;
-                    xdrive.xIO.Write(xTable.xAllocTable.ReadBytes((int)xdrive.SectorSize));
-                    xdrive.xIO.Flush();
+                    FXPAllocTable.xAllocTable.Position = i * FXPDrive.SectorSize;
+                    FXPDrive.FXDIO.Write(FXPAllocTable.xAllocTable.ReadBytes((int)FXPDrive.SectorSize));
+                    FXPDrive.FXDIO.Flush();
                 }
                 return true;
             }

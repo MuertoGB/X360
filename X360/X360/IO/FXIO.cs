@@ -2179,9 +2179,9 @@ namespace X360.IO
         [CompilerGenerated]
         bool accessed = false;
 
-        FATXDrive xDrive { get { return Partition.xdrive; } }
+        FATXDrive xDrive { get { return Partition.FXPDrive; } }
         FATXPartition Partition { get { return xEntry.Partition; } }
-        FXIO xIO { get { return xDrive.xIO; } }
+        FXIO xIO { get { return xDrive.FXDIO; } }
 
         /// <summary>
         /// File IO on a FATX drive
@@ -2192,12 +2192,12 @@ namespace X360.IO
         public FATXStreamIO(FATXFileEntry Instance, ref uint[] xBlocks, bool BigEndian)
         {
             xEntry = Instance;
-            if (xDrive.xActive)
+            if (xDrive.Active)
                 throw IOExcepts.AccessError;
             xDrive.GetIO();
             blocks = xBlocks;
             accessed = true;
-            xDrive.xActive = true;
+            xDrive.Active = true;
             IsBigEndian = BigEndian;
             Position = 0;
         }
@@ -2257,7 +2257,7 @@ namespace X360.IO
         public override bool Close()
         {
             accessed = false;
-            xDrive.xActive = false;
+            xDrive.Active = false;
             return true;
         }
 

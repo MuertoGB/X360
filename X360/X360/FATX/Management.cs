@@ -337,25 +337,25 @@ namespace X360.FATX
     [DebuggerStepThrough]
     public sealed class FATXDrive
     {
-        [CompilerGenerated]
-        Drive xDrive = null;
-        [CompilerGenerated]
-        List<FATXPartition> xPartitions;
-        [CompilerGenerated]
-        DriveTypes xType = DriveTypes.Unknown;
-        [CompilerGenerated]
-        internal FXIO xIO = null;
-        [CompilerGenerated]
-        bool xactive = false; // To prevent multithread errors
+        Drive FXDDrive = null;
+        List<FATXPartition> FXDPartitions;
+        DriveTypes FXDType = DriveTypes.Unknown;
+        internal FXIO FXDIO = null;
+        bool FXDActive = false; // To prevent multithread errors
 
-        internal bool xActive
+        internal bool Active
         {
-            get { return xactive; }
+            get
+            {
+                return FXDActive;
+            }
             set
             {
-                xactive = value;
-                if (!value && IsDriveIO && xType != DriveTypes.USBFlashDrive)
-                    xIO.Close();
+                FXDActive = value;
+                if (!value && IsDriveIO && FXDType != DriveTypes.USBFlashDrive)
+                {
+                    FXDIO.Close();
+                }
             }
         }
         /// <summary>
@@ -366,18 +366,21 @@ namespace X360.FATX
             get
             {
                 if (!Success)
+                {
                     throw FATXExcepts.ValidExcept;
-                return xType;
+                }
+                    
+                return FXDType;
             }
         }
         /// <summary>
         /// Is an IO to a device
         /// </summary>
-        public bool IsDriveIO { get { return xDrive != null; } }
+        public bool IsDriveIO { get { return FXDDrive != null; } }
         /// <summary>
         /// Determines if this Drive is successfully obtained
         /// </summary>
-        public FATXPartition[] Partitions { get { return xPartitions.ToArray(); } }
+        public FATXPartition[] Partitions { get { return FXDPartitions.ToArray(); } }
         /// <summary>
         /// True if parse success
         /// </summary>
@@ -385,9 +388,9 @@ namespace X360.FATX
         {
             get
             {
-                if (xIO == null)
-                    return (xDrive != null && xDrive.Accessed);
-                else return (xIO.Accessed);
+                if (FXDIO == null)
+                    return (FXDDrive != null && FXDDrive.Accessed);
+                else return (FXDIO.Accessed);
             }
         }
         /// <summary>
@@ -398,28 +401,28 @@ namespace X360.FATX
             get
             {
                 if (IsDriveIO)
-                    return xDrive.Geometry.BytesPerSector;
+                    return FXDDrive.Geometry.BytesPerSector;
                 return 0x200;
             }
         }
         /// <summary>
         /// Size of device
         /// </summary>
-        public long DriveSize { get { return xIO.Length; } }
+        public long DriveSize { get { return FXDIO.Length; } }
         /// <summary>
         /// Friendly size
         /// </summary>
-        public string DriveSizeFriendly { get { return xIO.LengthFriendly; } }
+        public string DriveSizeFriendly { get { return FXDIO.LengthFriendly; } }
         /// <summary>
         /// Name of the device
         /// </summary>
-        public string DriveName { get { return (xDrive != null) ? xDrive.DeviceName : xIO.FileNameShort; } }
+        public string DriveName { get { return (FXDDrive != null) ? FXDDrive.DeviceName : FXDIO.FileNameShort; } }
 
         internal bool ActiveCheck()
         {
-            if (xActive)
+            if (Active)
                 return true;
-            return !(xActive = true);
+            return !(Active = true);
         }
 
         internal FATXReadContents xReadToFolder(string Path, out FATXFolderEntry xFolderOut)
@@ -434,9 +437,9 @@ namespace X360.FATX
                 Path = Path.Substring(0, Path.Length - 1);
             string[] Folders = Path.Split(new char[] { '/' });
             sbyte PartitionIndex = -1;
-            for (int i = 0; i < xPartitions.Count; i++)
+            for (int i = 0; i < FXDPartitions.Count; i++)
             {
-                if (xPartitions[i].PartitionName.ToLower() != Folders[0].ToLower())
+                if (FXDPartitions[i].PartitionName.ToLower() != Folders[0].ToLower())
                     continue;
                 PartitionIndex = (sbyte)i;
                 break;
@@ -454,7 +457,7 @@ namespace X360.FATX
                     xread.xsubparts.Add(xz);
                 return xread;
             }
-            FATXPartition xcurpart = xPartitions[PartitionIndex];
+            FATXPartition xcurpart = FXDPartitions[PartitionIndex];
             int idx = 1;
             for (int i = 0; i < xcurpart.SubPartitions.Length; i++)
             {
@@ -518,7 +521,7 @@ namespace X360.FATX
                 return null;
             }
             FATXReadContents xreturn = xReadToFolder(Path, out xFolderOut);
-            xactive = false;
+            FXDActive = false;
             return xreturn;
         }
 
@@ -526,10 +529,10 @@ namespace X360.FATX
         {
             if (!Success)
                 return false;
-            xPartitions = new List<FATXPartition>();
+            FXDPartitions = new List<FATXPartition>();
             new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(System.DLLIdentify.PrivilegeCheck)).Start(System.Threading.Thread.CurrentThread);
             GetIO();
-            if (xType == DriveTypes.HardDrive)
+            if (FXDType == DriveTypes.HardDrive)
             {
                 /*FATXPartition x = new FATXPartition((long)HDD.Partition1, (long)HDD.Partition2 - (long)HDD.Partition1, this, current);
                 if (x.IsValid)
@@ -545,43 +548,43 @@ namespace X360.FATX
                 }*/
                 FATXPartition x = new FATXPartition((long)HDD.Partition3, (long)HDD.Partition4 - (long)HDD.Partition3, this, "System");
                 if (x.IsValid)
-                    xPartitions.Add(x); // Unknown
+                    FXDPartitions.Add(x); // Unknown
                 x = new FATXPartition((long)HDD.Partition4, (long)HDD.Partition5 - (long)HDD.Partition4, this, "Compatability"); // Compatability
                 if (x.IsValid)
-                    xPartitions.Add(x); // Compatability
+                    FXDPartitions.Add(x); // Compatability
                 x = new FATXPartition((long)HDD.Partition5,
-                    xIO.Length - (long)HDD.Partition5, this, "Content");
+                    FXDIO.Length - (long)HDD.Partition5, this, "Content");
                 if (x.IsValid)
-                    xPartitions.Add(x); // Main Partition
+                    FXDPartitions.Add(x); // Main Partition
             }
-            else if (xType == DriveTypes.MemoryUnit)
+            else if (FXDType == DriveTypes.MemoryUnit)
             {
                 FATXPartition x = new FATXPartition((long)MU.Partition1, (long)MU.Partition2 - (long)MU.Partition1, this, "Cache");
                 if (x.IsValid)
-                    xPartitions.Add(x);
+                    FXDPartitions.Add(x);
                 x = new FATXPartition((long)MU.Partition2,
-                    xIO.Length - (long)MU.Partition2, this, "Content");
+                    FXDIO.Length - (long)MU.Partition2, this, "Content");
                 if (x.IsValid)
-                    xPartitions.Add(x);
+                    FXDPartitions.Add(x);
             }
-            else if (xType == DriveTypes.USBFlashDrive)
+            else if (FXDType == DriveTypes.USBFlashDrive)
             {
                 // Dunno why there's space between o.o
                 FATXPartition x = new FATXPartition((long)USB.Partition1, 0x47FF000, this, "Cache");
                 if (x.IsValid)
-                    xPartitions.Add(x);
+                    FXDPartitions.Add(x);
                 x = new FATXPartition((long)USB.Partition2,
-                    xIO.Length - (long)USB.Partition2, this, "Content");
+                    FXDIO.Length - (long)USB.Partition2, this, "Content");
                 if (x.IsValid)
-                    xPartitions.Add(x);
+                    FXDPartitions.Add(x);
             }
             else
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    xIO.Position = (8 + (i * 8));
-                    uint off = xIO.ReadUInt32();
-                    uint len = xIO.ReadUInt32();
+                    FXDIO.Position = (8 + (i * 8));
+                    uint off = FXDIO.ReadUInt32();
+                    uint len = FXDIO.ReadUInt32();
                     if (off == 0 || len == 0)
                         break;
                     string name = "Partition" + i.ToString();
@@ -593,10 +596,10 @@ namespace X360.FATX
                     FATXPartition x = new FATXPartition((off * SectorSize), (len * SectorSize),
                         this, name);
                     if (x.IsValid)
-                        xPartitions.Add(x);
+                        FXDPartitions.Add(x);
                 }
             }
-            return !(xActive = false);
+            return !(Active = false);
         }
 
         /// <summary>
@@ -604,9 +607,9 @@ namespace X360.FATX
         /// </summary>
         public void Close()
         {
-            xIO.Dispose();
+            FXDIO.Dispose();
             foreach (FATXPartition x in Partitions)
-                x.xTable.xAllocTable.Dispose(true);
+                x.FXPAllocTable.xAllocTable.Dispose(true);
         }
 
         /// <summary>
@@ -617,10 +620,10 @@ namespace X360.FATX
         {
             if (!InDrive.Accessed)
                 throw new Exception("Invalid input");
-            if (!FATXManagement.IsFATX(ref InDrive, out xType))
+            if (!FATXManagement.IsFATX(ref InDrive, out FXDType))
                 throw new Exception("Drive is not FATX");
-            xactive = true;
-            xDrive = InDrive;
+            FXDActive = true;
+            FXDDrive = InDrive;
             LoadPartitions();
         }
 
@@ -633,10 +636,10 @@ namespace X360.FATX
             Drive xdrive = new Drive(DeviceIn.index, DeviceIn.type);
             if (!xdrive.Accessed)
                 throw new Exception("Invalid input");
-            if (!FATXManagement.IsFATX(ref xdrive, out xType))
+            if (!FATXManagement.IsFATX(ref xdrive, out FXDType))
                 throw new Exception("Drive is not FATX");
-            xactive = true;
-            xDrive = xdrive;
+            FXDActive = true;
+            FXDDrive = xdrive;
             LoadPartitions();
         }
 
@@ -649,10 +652,10 @@ namespace X360.FATX
             FXIO xImage = new FXIO(FileLocale, DJFileMode.Open, true);
             if (xImage == null || !xImage.Accessed)
                 return;
-            if (!FATXManagement.IsFATX(ref xImage, out xType))
+            if (!FATXManagement.IsFATX(ref xImage, out FXDType))
                 throw new Exception("Drive is not FATX");
-            xactive = true;
-            xIO = xImage;
+            FXDActive = true;
+            FXDIO = xImage;
             LoadPartitions();
         }
 
@@ -664,9 +667,9 @@ namespace X360.FATX
         {
             if (xImage == null || !xImage.Accessed)
                 return;
-            if (!FATXManagement.IsFATX(ref xImage, out xType))
+            if (!FATXManagement.IsFATX(ref xImage, out FXDType))
                 throw new Exception("Drive is not FATX");
-            xIO = xImage;
+            FXDIO = xImage;
             LoadPartitions();
         }
 
@@ -681,9 +684,9 @@ namespace X360.FATX
                 return false;
             FXIO xIOOut = null;
             try { xIOOut = new FXIO(fileOut, DJFileMode.Create, true); }
-            catch { return xactive = false; }
+            catch { return FXDActive = false; }
             if (!xIOOut.Accessed)
-                return xactive = false;
+                return FXDActive = false;
             bool result = extractimg(xIOOut);
             xIOOut.Dispose();
             return result;
@@ -695,11 +698,11 @@ namespace X360.FATX
             try
             {
                 GetIO();
-                xIO.Position = xIOOut.Position = 0;
-                for (long i = 0; i < xIO.Length; i += 0x1000)
-                    xIOOut.Write(xIO.unbufferedread(0x1000));
+                FXDIO.Position = xIOOut.Position = 0;
+                for (long i = 0; i < FXDIO.Length; i += 0x1000)
+                    xIOOut.Write(FXDIO.unbufferedread(0x1000));
                 xIOOut.Flush();
-                xactive = false;
+                FXDActive = false;
             }
             catch { }
 
@@ -711,9 +714,9 @@ namespace X360.FATX
             x.Start(xIOOut);
             while (x.IsAlive)
                 System.Windows.Forms.Application.DoEvents();
-            if (xactive)
-                return (xactive = false);
-            return (!xactive);
+            if (FXDActive)
+                return (FXDActive = false);
+            return (!FXDActive);
         }
 
         /// <summary>
@@ -745,21 +748,21 @@ namespace X360.FATX
             FATXDrive xImageDrive = (FATXDrive)drv;
             xImageDrive.GetIO();
             GetIO();
-            xIO.Position = xImageDrive.xIO.Position = 0;
-            for (long i = 0; i < xIO.Length && i < xImageDrive.xIO.Length; i += 0x1000)
-                xIO.unbufferedwrite(xImageDrive.xIO.ReadBytes(0x1000));
+            FXDIO.Position = xImageDrive.FXDIO.Position = 0;
+            for (long i = 0; i < FXDIO.Length && i < xImageDrive.FXDIO.Length; i += 0x1000)
+                FXDIO.unbufferedwrite(xImageDrive.FXDIO.ReadBytes(0x1000));
         }
 
         bool restoreimg(FATXDrive xImageDrive)
         {
             if (xImageDrive == null || xImageDrive.IsDriveIO ||
-                !xImageDrive.Success || xImageDrive.Type != xType)
-                return (xactive = false);
+                !xImageDrive.Success || xImageDrive.Type != FXDType)
+                return (FXDActive = false);
             System.Threading.Thread x = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(rstthrd));
             x.Start(xImageDrive);
             while (x.IsAlive)
                 System.Windows.Forms.Application.DoEvents();
-            return !(xactive = false);
+            return !(FXDActive = false);
         }
 
         /// <summary>
@@ -773,7 +776,7 @@ namespace X360.FATX
                 return false;
             FATXDrive ximg = new FATXDrive(ImageLocation);
             if (!ximg.Success)
-                return xactive = false;
+                return FXDActive = false;
             bool success = restoreimg(ximg);
             ximg.Close();
             return success & ReloadDrive();
@@ -788,34 +791,34 @@ namespace X360.FATX
             if (ActiveCheck())
                 return false;
             Close();
-            xPartitions.Clear();
+            FXDPartitions.Clear();
             return LoadPartitions();
         }
 
         internal void GetIO()
         {
-            if (IsDriveIO && xType != DriveTypes.USBFlashDrive)
+            if (IsDriveIO && FXDType != DriveTypes.USBFlashDrive)
             {
                 // Close previous handle
-                if (xIO != null)
+                if (FXDIO != null)
                 {
-                    xIO.Close();
+                    FXDIO.Close();
                     // Make a new handle to a drive
-                    xIO.OpenAgain();
+                    FXDIO.OpenAgain();
                 }
-                else xIO = new DriveIO(ref xDrive, true);
+                else FXDIO = new DriveIO(ref FXDDrive, true);
             }
-            else if (xType == DriveTypes.USBFlashDrive && xIO == null || !xIO.Accessed)
+            else if (FXDType == DriveTypes.USBFlashDrive && FXDIO == null || !FXDIO.Accessed)
             {
                 List<string> files = new List<string>();
                 for (int i = 0; i <= 9999; i++)
                 {
-                    string file = xDrive.DeviceName + @"\Xbox360\Data" + i.ToString("000#");
+                    string file = FXDDrive.DeviceName + @"\Xbox360\Data" + i.ToString("000#");
                     if (File.Exists(file))
                         files.Add(file);
                     else break;
                 }
-                xIO = new MultiFileIO(files.ToArray(), true);
+                FXDIO = new MultiFileIO(files.ToArray(), true);
             }
         }
 
@@ -825,7 +828,7 @@ namespace X360.FATX
         ~FATXDrive()
         {
             Close();
-            xDrive = null;
+            FXDDrive = null;
         }
     }
 }
