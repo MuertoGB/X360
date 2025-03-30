@@ -14,3 +14,10 @@ Namespace X360.FATX.FATXFileEntry
 
 - Old: xReplace()
 - New: ReplaceInternal()
+
+----------------------------------
+Namespace X360.FATX.FATXFolderEntry
+----------------------------------
+
+- Old: xRead()
+- New: ReadContents()

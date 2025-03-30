@@ -449,12 +449,12 @@ namespace X360.FATX
             if (Folders.Length == 1)
             {
                 FATXReadContents xread = new FATXReadContents();
-                xread.xfiles = new List<FATXFileEntry>();
-                xread.xfolds = new List<FATXFolderEntry>();
+                xread.FXFEFiles = new List<FATXFileEntry>();
+                xread.FXFEFolders = new List<FATXFolderEntry>();
                 foreach (FATXFolderEntry xz in Partitions[PartitionIndex].Folders)
-                    xread.xfolds.Add(xz);
+                    xread.FXFEFolders.Add(xz);
                 foreach (FATXPartition xz in Partitions[PartitionIndex].SubPartitions)
-                    xread.xsubparts.Add(xz);
+                    xread.FXFESubParts.Add(xz);
                 return xread;
             }
             FATXPartition xcurpart = FXDPartitions[PartitionIndex];
@@ -468,10 +468,10 @@ namespace X360.FATX
                 if (Folders.Length == 2)
                 {
                     FATXReadContents xread = new FATXReadContents();
-                    xread.xfiles = new List<FATXFileEntry>();
-                    xread.xfolds = new List<FATXFolderEntry>();
+                    xread.FXFEFiles = new List<FATXFileEntry>();
+                    xread.FXFEFolders = new List<FATXFolderEntry>();
                     foreach (FATXFolderEntry xz in xcurpart.Folders)
-                        xread.xfolds.Add(xz);
+                        xread.FXFEFolders.Add(xz);
                     return xread;
                 }
                 break;
@@ -491,7 +491,7 @@ namespace X360.FATX
             for (int i = idx; i < Folders.Length; i++)
             {
                 bool found = false;
-                xreadct = xFold.xRead();
+                xreadct = xFold.ReadContents();
                 foreach (FATXFolderEntry x in xreadct.Folders)
                 {
                     if (x.Name.ToLower() != Folders[i].ToLower())
@@ -504,7 +504,7 @@ namespace X360.FATX
                     return null;
             }
             xFolderOut = xFold;
-            return xFold.xRead();
+            return xFold.ReadContents();
 
         }
         /// <summary>

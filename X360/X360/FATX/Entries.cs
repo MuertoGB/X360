@@ -576,111 +576,165 @@ namespace X360.FATX
         public string GetSTFSName()
         {
             if (FXEDrive.ActiveCheck())
+            {
                 return null;
-            string xReturn = null;
+            }
+
+            string extractedGamertag = null;
+
             try
             {
+                // Validate entry size
                 if (FXEEntrySize < 0x500)
-                    throw new Exception();
+                {
+                    throw new Exception("Invalid entry size. Expected size >= 0x500.");
+                }
+
+                // Fetch block allocation
                 FXEDrive.GetIO();
-                uint[] blocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
-                if (blocks.Length == 0)
-                    throw new Exception();
+                uint[] allocationBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
+
+                if (allocationBlocks.Length == 0)
+                {
+                    throw new Exception("Failed to retrieve block allocation.");
+                }
+
                 FXEDrive.Active = false;
-                FATXStreamIO io = new FATXStreamIO(this, ref blocks, true);
-                uint xBuff = io.ReadUInt32();
-                if (xBuff != (uint)STFS.PackageMagic.CON &&
-                    xBuff != (uint)STFS.PackageMagic.LIVE &&
-                    xBuff != (uint)STFS.PackageMagic.PIRS)
-                    throw new Exception();
-                io.Position = 0x411;
-                xReturn = io.ReadString(StringForm.Unicode, 0x80);
-                io.Position = 0x340;
-                byte xbase = (byte)(((io.ReadUInt32() + 0xFFF) & 0xF000) >> 0xC);
-                if (io.ReadUInt32() != (uint)STFS.PackageType.Profile)
-                    throw new Exception();
-                io.Position = 0x379;
-                if (io.ReadByte() != 0x24 || io.ReadByte() != 0)
-                    throw new Exception();
-                byte idx = (byte)(io.ReadByte() & 3);
-                byte[] Desc = io.ReadBytes(5);
-                if (idx == 0 || idx == 2)
+                FATXStreamIO io = new FATXStreamIO(this, ref allocationBlocks, true);
+
+                try
                 {
-                    if (xbase != 0xA)
-                        throw new Exception();
-                }
-                else if (idx == 1)
-                {
-                    if (xbase != 0xB)
-                        throw new Exception();
-                }
-                else throw new Exception();
-                io.Position = 0x395;
-                STFS.STFSDescriptor xDesc = new X360.STFS.STFSDescriptor(Desc, io.ReadUInt32(), io.ReadUInt32(), idx);
-                int pos = (int)xDesc.GenerateDataOffset(xDesc.DirectoryBlock);
-                uint block = xDesc.DirectoryBlock;
-                while (pos != -1)
-                {
-                    for (int i = 0; i < 0x40; i++)
+                    uint packageMagic = io.ReadUInt32();
+
+                    if (packageMagic != (uint)STFS.PackageMagic.CON &&
+                        packageMagic != (uint)STFS.PackageMagic.LIVE &&
+                        packageMagic != (uint)STFS.PackageMagic.PIRS)
                     {
-                        if (pos == -1)
-                            break;
-                        io.Position = pos + 0x28 + (0x40 * i);
-                        byte nlen = (byte)(io.ReadByte() & 0x3F);
-                        if (nlen > 0x28)
-                            nlen = 0x28;
-                        io.Position = pos + (0x40 * i);
-                        if (io.ReadString(StringForm.ASCII, nlen) == "Account")
+                        throw new Exception("Unsupported package type detected.");
+                    }
+
+                    io.Position = 0x411;
+                    extractedGamertag = io.ReadString(StringForm.Unicode, 0x80);
+
+                    io.Position = 0x340;
+                    byte packageBase = (byte)(((io.ReadUInt32() + 0xFFF) & 0xF000) >> 0xC);
+
+                    if (io.ReadUInt32() != (uint)STFS.PackageType.Profile)
+                    {
+                        throw new Exception("Invalid package type. Expected Profile.");
+                    }
+
+                    io.Position = 0x379;
+                    if (io.ReadByte() != 0x24 || io.ReadByte() != 0)
+                    {
+                        throw new Exception("Invalid account type detected.");
+                    }
+
+                    byte accountIndex = (byte)(io.ReadByte() & 3);
+                    byte[] descriptorBytes = io.ReadBytes(5);
+
+                    if ((accountIndex == 0 || accountIndex == 2) && packageBase != 0xA ||
+                        accountIndex == 1 && packageBase != 0xB ||
+                        accountIndex > 2)
+                    {
+                        throw new Exception("Unexpected account index or package base.");
+                    }
+
+                    io.Position = 0x395;
+                    STFS.STFSDescriptor stfsDescriptor = new STFS.STFSDescriptor(descriptorBytes, io.ReadUInt32(), io.ReadUInt32(), accountIndex);
+
+                    int dataOffset = (int)stfsDescriptor.GenerateDataOffset(stfsDescriptor.DirectoryBlock);
+                    uint currentBlock = stfsDescriptor.DirectoryBlock;
+
+                    while (dataOffset != -1)
+                    {
+                        for (int i = 0; i < 0x40; i++)
                         {
-                            io.Position = pos + (0x40 * i) + 0x2F;
-                            List<byte> buff = new List<byte>(io.ReadBytes(3));
-                            buff.Add(0);
-                            block = BitConv.ToUInt32(buff.ToArray(), false);
-                            pos = -1;
+                            if (dataOffset == -1)
+                            {
+                                break;
+                            }
+
+                            io.Position = dataOffset + 0x28 + (0x40 * i);
+                            byte nameLength = (byte)(io.ReadByte() & 0x3F);
+                            nameLength = nameLength > 0x28 ? (byte)0x28 : nameLength;
+
+                            io.Position = dataOffset + (0x40 * i);
+                            if (io.ReadString(StringForm.ASCII, nameLength) == "Account")
+                            {
+                                io.Position = dataOffset + (0x40 * i) + 0x2F;
+                                List<byte> blockBytes = new List<byte>(io.ReadBytes(3)) { 0 };
+                                currentBlock = BitConv.ToUInt32(blockBytes.ToArray(), false);
+                                dataOffset = -1;
+                                break;
+                            }
+                        }
+
+                        if (dataOffset != -1)
+                        {
+                            byte shift = stfsDescriptor.TopRecord.Index;
+
+                            // Resolve block using hash tables
+                            if (stfsDescriptor.BlockCount >= Constants.BlockLevel[1])
+                            {
+                                io.Position = (int)stfsDescriptor.GenerateHashOffset(currentBlock, STFS.TreeLevel.L2) + 0x14 + (shift << 0xC);
+                                shift = (byte)((io.ReadByte() >> 6) & 1);
+                            }
+
+                            if (stfsDescriptor.BlockCount >= Constants.BlockLevel[0])
+                            {
+                                io.Position = (int)stfsDescriptor.GenerateHashOffset(currentBlock, STFS.TreeLevel.L1) + 0x14 +
+                                              (stfsDescriptor.ThisType == STFS.STFSType.Type0 ? 0 : (shift << 0xC));
+                                shift = (byte)((io.ReadByte() >> 6) & 1);
+                            }
+
+                            io.Position = (int)stfsDescriptor.GenerateHashOffset(currentBlock, STFS.TreeLevel.L0) + 0x15 +
+                                          (stfsDescriptor.ThisType == STFS.STFSType.Type0 ? 0 : (shift << 0xC));
+                            List<byte> hashBytes = new List<byte>(io.ReadBytes(3));
+                            hashBytes.Reverse();
+                            hashBytes.Insert(0, 3);
+                            currentBlock = BitConv.ToUInt32(hashBytes.ToArray(), true);
+
+                            if (currentBlock == Constants.STFSEnd)
+                            {
+                                dataOffset = -1;
+                            }
                         }
                     }
-                    if (pos != -1)
+
+                    if (currentBlock == 0xFFFFFF)
                     {
-                        byte shift = xDesc.TopRecord.Index;
-                        if (xDesc.BlockCount >= Constants.BlockLevel[1])
-                        {
-                            io.Position = (int)xDesc.GenerateHashOffset(block, X360.STFS.TreeLevel.L2) + 0x14 +
-                                (shift << 0xC);
-                            shift = (byte)((io.ReadByte() >> 6) & 1);
-                        }
-                        if (xDesc.BlockCount >= Constants.BlockLevel[0])
-                        {
-                            io.Position = (int)xDesc.GenerateHashOffset(block, X360.STFS.TreeLevel.L1) + 0x14 +
-                                (xDesc.ThisType == STFS.STFSType.Type0 ? 0 : (shift << 0xC));
-                            shift = (byte)((io.ReadByte() >> 6) & 1);
-                        }
-                        io.Position = (int)xDesc.GenerateHashOffset(block, X360.STFS.TreeLevel.L0) + 0x15 +
-                                (xDesc.ThisType == STFS.STFSType.Type0 ? 0 : (shift << 0xC));
-                        List<byte> xbuff = new List<byte>(io.ReadBytes(3));
-                        xbuff.Reverse();
-                        xbuff.Insert(0, 3);
-                        block = BitConv.ToUInt32(xbuff.ToArray(), true);
-                        if (block == Constants.STFSEnd)
-                            pos = -1;
+                        throw new Exception("Invalid block encountered. Operation aborted.");
                     }
+
+                    io.Position = (int)stfsDescriptor.GenerateDataOffset(currentBlock);
+                    byte[] userData = io.ReadBytes(404);
+                    Profile.UserAccount userAccount = new Profile.UserAccount(new FXIO(userData, true), Profile.AccountType.Stock, false);
+
+                    if (!userAccount.Success)
+                    {
+                        userAccount = new Profile.UserAccount(new FXIO(userData, true), Profile.AccountType.Kits, false);
+                        if (!userAccount.Success)
+                        {
+                            throw new Exception("Failed to load user account data.");
+                        }
+                    }
+
+                    extractedGamertag = userAccount.GetGamertag();
                 }
-                if (block == 0xFFFFFF)
-                    throw new Exception();
-                io.Position = (int)xDesc.GenerateDataOffset(block);
-                byte[] databuff = io.ReadBytes(404);
-                Profile.UserAccount ua = new X360.Profile.UserAccount(new FXIO(databuff, true), X360.Profile.AccountType.Stock, false);
-                if (!ua.Success)
+                finally
                 {
-                    ua = new X360.Profile.UserAccount(new FXIO(databuff, true), X360.Profile.AccountType.Kits, false);
-                    if (!ua.Success)
-                        throw new Exception();
+                    io.Close();
                 }
-                xReturn = ua.GetGamertag();
-                io.Close();
+
                 FXEDrive.Active = false;
-                return xReturn;
+                return extractedGamertag;
             }
-            catch { FXEDrive.Active = false; return xReturn; }
+            catch (Exception ex)
+            {
+                FXEDrive.Active = false;
+                throw new Exception("Error while extracting STFS name: " + ex.Message, ex);
+            }
         }
     }
 
@@ -689,25 +743,22 @@ namespace X360.FATX
     /// </summary>
     public sealed class FATXReadContents
     {
-        [CompilerGenerated]
-        internal List<FATXFolderEntry> xfolds;
-        [CompilerGenerated]
-        internal List<FATXFileEntry> xfiles;
-        [CompilerGenerated]
-        internal List<FATXPartition> xsubparts = new List<FATXPartition>();
+        internal List<FATXFolderEntry> FXFEFolders;
+        internal List<FATXFileEntry> FXFEFiles;
+        internal List<FATXPartition> FXFESubParts = new List<FATXPartition>();
 
         /// <summary>
         /// Files
         /// </summary>
-        public FATXFileEntry[] Files { get { return xfiles.ToArray(); } }
+        public FATXFileEntry[] Files => FXFEFiles.ToArray();
         /// <summary>
         /// Folders
         /// </summary>
-        public FATXFolderEntry[] Folders { get { return xfolds.ToArray(); } }
+        public FATXFolderEntry[] Folders => FXFEFolders.ToArray();
         /// <summary>
         /// Subpartitions
         /// </summary>
-        public FATXPartition[] SubPartitions { get { return xsubparts.ToArray(); } }
+        public FATXPartition[] SubPartitions => FXFESubParts.ToArray();
 
         internal FATXReadContents() { }
     }
@@ -726,47 +777,78 @@ namespace X360.FATX
         public FATXReadContents Read()
         {
             if (FXEDrive.ActiveCheck())
+            {
                 return null;
-            FATXReadContents xReturn = xRead();
+            }
+
+            FATXReadContents xReturn = ReadContents();
             FXEDrive.Active = false;
             return xReturn;
         }
 
-        internal FATXReadContents xRead()
+        internal FATXReadContents ReadContents()
         {
-            FATXReadContents xreturn = new FATXReadContents();
+            FATXReadContents readResult = new FATXReadContents();
+
             try
             {
                 FXEDrive.GetIO();
-                List<FATXEntry> xEntries = new List<FATXEntry>();
-                uint[] xBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
-                for (int i = 0; i < xBlocks.Length; i++)
+                List<FATXEntry> fatxEntries = new List<FATXEntry>();
+                uint[] allocatedBlocks = Partition.FXPAllocTable.GetBlocks(StartBlock);
+
+                for (int blockIndex = 0; blockIndex < allocatedBlocks.Length; blockIndex++)
                 {
-                    long xCurrent = Partition.BlockToOffset(xBlocks[i]);
-                    if (xCurrent == -1)
-                        break;
-                    for (int x = 0; x < Partition.xEntryCount; x++)
+                    long blockOffset = Partition.BlockToOffset(allocatedBlocks[blockIndex]);
+
+                    if (blockOffset == -1)
                     {
-                        FXEDrive.FXDIO.Position = xCurrent + (0x40 * x);
-                        FATXEntry z = new FATXEntry((xCurrent + (0x40 * x)), FXEDrive.FXDIO.ReadBytes(0x40), ref FXEDrive);
-                        z.SetAttributes(Partition);
-                        if (z.FXEIsValid)
-                            xEntries.Add(z);
-                        else if (z.FXENameLength != 0xE5)
+                        break;
+                    }
+
+                    for (int entryIndex = 0; entryIndex < Partition.xEntryCount; entryIndex++)
+                    {
+                        FXEDrive.FXDIO.Position = blockOffset + (0x40 * entryIndex);
+                        FATXEntry entry = new FATXEntry(
+                            (blockOffset + (0x40 * entryIndex)),
+                            FXEDrive.FXDIO.ReadBytes(0x40),
+                            ref FXEDrive
+                        );
+
+                        entry.SetAttributes(Partition);
+
+                        if (entry.FXEIsValid)
+                        {
+                            fatxEntries.Add(entry);
+                        }                         
+                        else if (entry.FXENameLength != 0xE5)
+                        {
                             break;
+                        }   
                     }
                 }
-                xreturn.xfolds = new List<FATXFolderEntry>();
-                xreturn.xfiles = new List<FATXFileEntry>();
-                for (int i = 0; i < xEntries.Count; i++)
+
+                readResult.FXFEFolders = new List<FATXFolderEntry>();
+                readResult.FXFEFiles = new List<FATXFileEntry>();
+
+                for (int entryIndex = 0; entryIndex < fatxEntries.Count; entryIndex++)
                 {
-                    if (xEntries[i].IsFolder)
-                        xreturn.xfolds.Add(new FATXFolderEntry(xEntries[i], ref FXEDrive));
-                    else xreturn.xfiles.Add(new FATXFileEntry(xEntries[i], ref FXEDrive));
+                    if (fatxEntries[entryIndex].IsFolder)
+                    {
+                        readResult.FXFEFolders.Add(new FATXFolderEntry(fatxEntries[entryIndex], ref FXEDrive));
+                    }
+                    else
+                    {
+                        readResult.FXFEFiles.Add(new FATXFileEntry(fatxEntries[entryIndex], ref FXEDrive));
+                    }
                 }
-                return xreturn;
+
+                return readResult;
             }
-            catch { return (xreturn = null); }
+            catch
+            {
+                readResult = null;
+                return readResult;
+            }
         }
 
         /// <summary>
@@ -821,8 +903,8 @@ namespace X360.FATX
                 return false;
             try
             {
-                FATXReadContents xconts = xRead();
-                foreach (FATXFolderEntry x in xconts.xfolds)
+                FATXReadContents xconts = ReadContents();
+                foreach (FATXFolderEntry x in xconts.FXFEFolders)
                 {
                     if (x.Name == FolderName)
                         return (FXEDrive.Active = false);
@@ -874,8 +956,8 @@ namespace X360.FATX
             catch { return (FXEDrive.Active = false); }
             try
             {
-                FATXReadContents xconts = xRead();
-                foreach (FATXFileEntry x in xconts.xfiles)
+                FATXReadContents xconts = ReadContents();
+                foreach (FATXFileEntry x in xconts.FXFEFiles)
                 {
                     if (x.Name == FileName)
                     {
@@ -921,7 +1003,7 @@ namespace X360.FATX
         {
             if (!VariousFunctions.xCheckDirectory(xOut))
                 return false;
-            FATXReadContents xread = xRead();
+            FATXReadContents xread = ReadContents();
             if (xread == null)
                 return false;
             foreach (FATXFileEntry x in xread.Files)
