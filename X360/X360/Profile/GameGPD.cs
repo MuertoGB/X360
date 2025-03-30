@@ -1,20 +1,18 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using X360.IO;
 using X360.Other;
-using System.Runtime.CompilerServices;
 
 namespace X360.Profile
 {
@@ -34,7 +32,8 @@ namespace X360.Profile
         /// <summary>
         /// Achievement unlocked online
         /// </summary>
-        UnlockedOnline }
+        UnlockedOnline
+    }
 
     /// <summary>
     /// Auto unlock
@@ -48,7 +47,8 @@ namespace X360.Profile
         /// <summary>
         /// Offline
         /// </summary>
-        Offline }
+        Offline
+    }
 
     /// <summary>
     /// Object to hold Achievement entries
@@ -174,7 +174,7 @@ namespace X360.Profile
                 TimeL = xRef.xIO.ReadInt64();
                 try
                 {
-                    DJsIO xStrings = new DJsIO(xRef.xIO.ReadBytes(Size - 0x1C), true);
+                    FXIO xStrings = new FXIO(xRef.xIO.ReadBytes(Size - 0x1C), true);
                     xTitle = xStrings.ReadString(StringForm.Unicode);
                     xDescription1 = xStrings.ReadString(StringForm.Unicode);
                     xDescription2 = xStrings.ReadString(StringForm.Unicode);
@@ -247,7 +247,7 @@ namespace X360.Profile
             }
             return xReturn;
         }
-        
+
         internal uint xCalcUT()
         {
             uint xReturn = 0;
@@ -292,7 +292,7 @@ namespace X360.Profile
             xActive = false;
             return xReturn;
         }
-        
+
         /// <summary>
         /// Calculate the total possible credit
         /// </summary>
@@ -370,7 +370,7 @@ namespace X360.Profile
                 return false;
             return FCAC() & !(xActive = false);
         }
-        
+
         /// <summary>
         /// Unlock all achievements
         /// </summary>

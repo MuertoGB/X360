@@ -1,25 +1,20 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Security.Cryptography;
-using System.Runtime.CompilerServices;
-using System.Drawing;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using X360.IO;
 using X360.Other;
-using X360.Security.Cryptography;
 
 namespace X360.GDFX
 {
@@ -35,7 +30,7 @@ namespace X360.GDFX
         /// <summary>
         /// Not a GDFX image
         /// </summary>
-        public static Exception NotGDF { get { return xNotGDF; }}
+        public static Exception NotGDF { get { return xNotGDF; } }
     }
 
     /// <summary>
@@ -93,7 +88,7 @@ namespace X360.GDFX
         /// </summary>
         Normal = 0x80
     }
-    
+
     /// <summary>
     /// Object to hold a GDF entry
     /// </summary>
@@ -126,7 +121,7 @@ namespace X360.GDFX
 
         internal GDFEntry(GDFImage xIn)
         {
-            DJsIO xIO = xIn.xIO;
+            FXIO xIO = xIn.xIO;
             entryoffset = xIO.Position;
             xStartBlock = xIO.ReadUInt32(false);
             xSize = xIO.ReadInt32(false);
@@ -159,7 +154,7 @@ namespace X360.GDFX
     {
         internal GDFFile(GDFEntry xIn) : base(xIn) { }
 
-        internal bool xExtract(DJsIO xIO)
+        internal bool xExtract(FXIO xIO)
         {
             if (xSize == 0)
                 return true;
@@ -186,7 +181,7 @@ namespace X360.GDFX
         {
             if (!xref.ActiveCheck())
                 return false;
-            DJsIO xIO = new DJsIO(true);
+            FXIO xIO = new FXIO(true);
             if (!xExtract(xIO))
             {
                 xIO.Close();
@@ -204,7 +199,7 @@ namespace X360.GDFX
         /// </summary>
         /// <param name="xIO"></param>
         /// <returns></returns>
-        public bool Inject(DJsIO xIO)
+        public bool Inject(FXIO xIO)
         {
             if (!xref.ActiveCheck())
                 return false;
@@ -220,11 +215,11 @@ namespace X360.GDFX
         {
             if (!xref.ActiveCheck())
                 return false;
-            DJsIO xIO = null;
+            FXIO xIO = null;
             bool success = false;
             try
             {
-                xIO = new DJsIO(FileLocale, DJFileMode.Open, true);
+                xIO = new FXIO(FileLocale, DJFileMode.Open, true);
                 if (!xIO.Accessed)
                     throw new Exception();
                 success = xInject(xIO);
@@ -235,7 +230,7 @@ namespace X360.GDFX
             return (success & !(xref.xActive = false));
         }
 
-        internal bool xInject(DJsIO xIO)
+        internal bool xInject(FXIO xIO)
         {
             try
             {
@@ -267,7 +262,7 @@ namespace X360.GDFX
         internal GDFFolder(GDFEntry xIn) : base(xIn) { }
 
         internal GDFFolder(int size, uint xBlock, GDFImage Ref) { xSize = size; xStartBlock = xBlock; xref = Ref; }
-        
+
         /// <summary>
         /// Reads the folder
         /// </summary>
@@ -306,7 +301,7 @@ namespace X360.GDFX
             GDFContents xConts = xRead();
             foreach (GDFFile x in xConts.Files)
             {
-                DJsIO y = new DJsIO(true);
+                FXIO y = new FXIO(true);
                 try
                 {
                     if (x.xExtract(y))
@@ -357,7 +352,7 @@ namespace X360.GDFX
         [CompilerGenerated]
         internal const ushort blocksize = 0x800;
         [CompilerGenerated]
-        internal DJsIO xIO;
+        internal FXIO xIO;
         [CompilerGenerated]
         byte[] unknown;
         [CompilerGenerated]
@@ -395,7 +390,7 @@ namespace X360.GDFX
         /// Grabs image from an IO
         /// </summary>
         /// <param name="xIOIn"></param>
-        public GDFImage(DJsIO xIOIn) : this(xIOIn, 0) { }
+        public GDFImage(FXIO xIOIn) : this(xIOIn, 0) { }
 
         /// <summary>
         /// Grabs an image from a file location
@@ -409,14 +404,15 @@ namespace X360.GDFX
         /// <param name="FileLocation"></param>
         /// <param name="Deviation"></param>
         public GDFImage(string FileLocation, uint Deviation) :
-            this(new DJsIO(FileLocation, DJFileMode.Open, true), Deviation) { }
-        
+            this(new FXIO(FileLocation, DJFileMode.Open, true), Deviation)
+        { }
+
         /// <summary>
         /// Grabs an image from an IO and specified Deviation
         /// </summary>
         /// <param name="xIOIn"></param>
         /// <param name="Deviation"></param>
-        public GDFImage(DJsIO xIOIn, uint Deviation)
+        public GDFImage(FXIO xIOIn, uint Deviation)
         {
             if (!xIOIn.Accessed)
                 throw IOExcepts.AccessError;
@@ -464,7 +460,7 @@ namespace X360.GDFX
         // Implement later
         internal GDFImage(CreateGDF xSession, bool AllocateSecuritySector, string OutLocale)
         {
-            
+
         }
 
         internal long GenerateDataOffset(uint xBlock)

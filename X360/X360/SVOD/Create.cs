@@ -1,26 +1,20 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
-using System.Drawing;
+using X360.GDFX;
 using X360.IO;
-using X360.STFS;
 using X360.Other;
 using X360.Security.Cryptography;
-using X360.GDFX;
+using X360.STFS;
 
 namespace X360.SVOD
 {
@@ -46,7 +40,7 @@ namespace X360.SVOD
         /// <summary>
         /// Header meta data
         /// </summary>
-        public HeaderData PackageHeader { get { return xHeader; }}
+        public HeaderData PackageHeader { get { return xHeader; } }
 
         /// <summary>
         /// Create an instance of this project
@@ -87,8 +81,8 @@ namespace X360.SVOD
             if (xActive)
                 return false;
             xActive = true;
-            DJsIO x = null;
-            DJsIO h = null;
+            FXIO x = null;
+            FXIO h = null;
             try
             {
                 string outlocale = OutLocation.Replace('\\', '/');
@@ -121,7 +115,7 @@ namespace X360.SVOD
                             xDataLength += x.Length;
                             x.Close();
                         }
-                        x = new DJsIO(DataFolder + SVODFuncs.formatstring(xDataFileCount), DJFileMode.Create, true);
+                        x = new FXIO(DataFolder + SVODFuncs.formatstring(xDataFileCount), DJFileMode.Create, true);
                         xDataFileCount++;
                     }
                     x.Position = SVODFuncs.GenerateDataOffset(xBlockCount);
@@ -151,7 +145,7 @@ namespace X360.SVOD
                 byte[] Hash = null;
                 for (int i = (int)(xDataFileCount - 1); i >= 0; i--)
                 {
-                    x = new DJsIO(DataFolder + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
+                    x = new FXIO(DataFolder + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
                     if (Hash != null)
                     {
                         x.Position = 0xFF0;
@@ -164,7 +158,7 @@ namespace X360.SVOD
                 xHeader.DataFileSize = xDataLength;
                 xHeader.DataFileCount = xDataFileCount;
                 xHeader.xThisType = ContentType;
-                h = new DJsIO(outlocale + "/" + xHeader.TitleID.ToString("X8"), DJFileMode.Create, true);
+                h = new FXIO(outlocale + "/" + xHeader.TitleID.ToString("X8"), DJFileMode.Create, true);
                 xHeader.Write(ref h);
                 h.SetLength(0xB000);
                 h.Position = 0x340;

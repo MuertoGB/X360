@@ -1,21 +1,17 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
-using System;
+// You agree to these terms when you use this code.
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using X360.IO;
-using X360.Other;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using X360.Other;
 
 namespace X360.STFS
 {
@@ -42,11 +38,11 @@ namespace X360.STFS
 
         public TreeLevel ThisLevel { get { return (TreeLevel)xLevel; } set { xLevel = (byte)value; } }
 
-        public byte Indicator { get { return (byte)(xFlags[0] >> 6); } set { xFlags[0] = (byte)((value & 3) << 6);}}
+        public byte Indicator { get { return (byte)(xFlags[0] >> 6); } set { xFlags[0] = (byte)((value & 3) << 6); } }
 
         public uint Flags
         {
-            get { return (uint)(xFlags[0] << 24 | xFlags[1] << 16 | xFlags[2] << 8 | xFlags[3]);}
+            get { return (uint)(xFlags[0] << 24 | xFlags[1] << 16 | xFlags[2] << 8 | xFlags[3]); }
             set { xFlags = BitConv.GetBytes(value, true); }
         }
 
@@ -57,9 +53,9 @@ namespace X360.STFS
         public BlockRecord(HashStatus xStatus, uint xNext) { Flags = (uint)((uint)xStatus << 30 | (xNext & 0xFFFFFF)); }
 
         /* Data Block Stuff */
-        public HashStatus Status { get { return (HashStatus)(xFlags[0] >> 6); } set { xFlags[0] = (byte)((int)value << 6);} }
+        public HashStatus Status { get { return (HashStatus)(xFlags[0] >> 6); } set { xFlags[0] = (byte)((int)value << 6); } }
 
-        public uint NextBlock { get { return (uint)(xFlags[1] << 16 | xFlags[2] << 8 | xFlags[3]); } set { Flags = (uint)((xFlags[0] << 24) | (int)(value & 0xFFFFFF)); }}
+        public uint NextBlock { get { return (uint)(xFlags[1] << 16 | xFlags[2] << 8 | xFlags[3]); } set { Flags = (uint)((xFlags[0] << 24) | (int)(value & 0xFFFFFF)); } }
 
         public void MarkOld()
         {
@@ -68,9 +64,9 @@ namespace X360.STFS
         }
 
         /* Table Stuff */
-        public byte Index { get { return (byte)(Indicator & 1); }}
+        public byte Index { get { return (byte)(Indicator & 1); } }
 
-        public HashFlag AllocationFlag { get { return (HashFlag)Indicator; } set { Indicator = (byte)value; }}
+        public HashFlag AllocationFlag { get { return (HashFlag)Indicator; } set { Indicator = (byte)value; } }
 
         public int BlocksFree
         {
@@ -117,18 +113,18 @@ namespace X360.STFS
         internal uint xBlockCount;
         [CompilerGenerated]
         internal BlockRecord TopRecord = new BlockRecord();
-        
-        internal uint[] SpaceBetween { get { return xSpaceBetween; }}
+
+        internal uint[] SpaceBetween { get { return xSpaceBetween; } }
         /// <summary>
         /// Block size of package
         /// </summary>
-        public uint BlockCount { get { return xBlockCount; }}
+        public uint BlockCount { get { return xBlockCount; } }
         /// <summary>
         /// Directory Block Count
         /// </summary>
-        public ushort DirectoryBlockCount { get { return (ushort)(xStruct[1] << 8 | xStruct[0]); }}
+        public ushort DirectoryBlockCount { get { return (ushort)(xStruct[1] << 8 | xStruct[0]); } }
         internal ushort xDirectoryBlockCount
-        { 
+        {
             set
             {
                 // Max is 0x3FF blocks (0xFFFF entries / 0x40 per block)
@@ -139,7 +135,7 @@ namespace X360.STFS
         /// <summary>
         /// Directory starting block
         /// </summary>
-        public uint DirectoryBlock { get { return (uint)(xStruct[4] << 16 | xStruct[3] << 8 | xStruct[2]); }}
+        public uint DirectoryBlock { get { return (uint)(xStruct[4] << 16 | xStruct[3] << 8 | xStruct[2]); } }
         internal uint xDirectoryBlock
         {
             set
@@ -151,11 +147,11 @@ namespace X360.STFS
             }
         }
         internal byte Shift = 0;
-        internal ushort BaseBlock { get { return (ushort)(xBaseByte << 0xC); }}
+        internal ushort BaseBlock { get { return (ushort)(xBaseByte << 0xC); } }
         /// <summary>
         /// STFS Type
         /// </summary>
-        public STFSType ThisType { get { return (STFSType)Shift; }}
+        public STFSType ThisType { get { return (STFSType)Shift; } }
         /// <summary>
         /// Old block count
         /// </summary>
@@ -272,7 +268,7 @@ namespace X360.STFS
                 if (xBlock < BlockLevel[0]) // if the block is less than 0xAA, return teh sexy
                     return num;
                 // Gets current 0x70e4 section, adjusts to table count
-                num += (((xBlock / BlockLevel[1]) + 1) << Shift); 
+                num += (((xBlock / BlockLevel[1]) + 1) << Shift);
                 if (xBlock < BlockLevel[1]) // If the block is less than 0x70e4, return teh sexy
                     return num;
                 // There is only going to be 1 0x4AF768 section, add to base
@@ -310,7 +306,7 @@ namespace X360.STFS
                                 return xSpaceBetween[0];
                             else return (uint)((SpaceBetween[1] * (xBlock / BlockLevel[1])) + (1 << Shift));
                         }
-                        
+
                     // Only one Level 2 table
                     case TreeLevel.L2: return SpaceBetween[1];
 

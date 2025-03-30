@@ -1,20 +1,16 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.CompilerServices;
 using X360.IO;
-using X360.Other;
-using X360.STFS;
 
 namespace X360.Profile
 {
@@ -27,7 +23,8 @@ namespace X360.Profile
         /// <summary></summary>
         LeftStick,
         /// <summary></summary>
-        RightStick }
+        RightStick
+    }
 
     /// <summary>
     /// Enums for color presets
@@ -63,73 +60,87 @@ namespace X360.Profile
     /// <summary>
     /// Enums for general difficulty presets
     /// </summary>
-    public enum GeneralDifficulty : uint {
+    public enum GeneralDifficulty : uint
+    {
         /// <summary></summary>
         Normal,
         /// <summary></summary>
         Easy,
         /// <summary></summary>
-        Hard }
+        Hard
+    }
 
     /// <summary>
     /// Enums for sensitivity presets
     /// </summary>
-    public enum GeneralSensitivity : uint {
+    public enum GeneralSensitivity : uint
+    {
         /// <summary></summary>
         Medium,
         /// <summary></summary>
         Low,
         /// <summary></summary>
-        High }
+        High
+    }
 
     /// <summary>
     /// Enums for break control presets
     /// </summary>
-    public enum RaceBrakeControl : uint {
+    public enum RaceBrakeControl : uint
+    {
         /// <summary></summary>
         Trigger,
         /// <summary></summary>
-        Button }
+        Button
+    }
 
     /// <summary>
     /// Enums for race cam presets
     /// </summary>
-    public enum RaceCamLocation : uint {
+    public enum RaceCamLocation : uint
+    {
         /// <summary></summary>
         Behind,
         /// <summary></summary>
         InFront,
         /// <summary></summary>
-        Inside }
+        Inside
+    }
 
     /// <summary>
     /// Enum for race speed presets
     /// </summary>
-    public enum RaceSpeedControl : uint {
+    public enum RaceSpeedControl : uint
+    {
         /// <summary></summary>
         Trigger,
         /// <summary></summary>
-        Button }
+        Button
+    }
 
     /// <summary>
     /// Enums for transmission presets
     /// </summary>
-    public enum RaceTransition : uint {
+    public enum RaceTransition : uint
+    {
         /// <summary></summary>
         Automatic,
         /// <summary></summary>
-        Manual }
+        Manual
+    }
 
     /// <summary>
     /// Voice options presets
     /// </summary>
-    public enum VoiceOptions : uint {
+    public enum VoiceOptions : uint
+    {
         /// <summary></summary>
         OnlyHeadset,
         /// <summary></summary>
         OnlySpeaker,
         /// <summary></summary>
-        Both }
+        Both
+    }
 
     /// <summary>
     /// Setting variable types
@@ -459,7 +470,7 @@ namespace X360.Profile
         /// <summary>
         /// Reserved data
         /// </summary>
-        public byte[] Reserved { get { return xReserved; }}
+        public byte[] Reserved { get { return xReserved; } }
         /// <summary>
         /// Title name
         /// </summary>

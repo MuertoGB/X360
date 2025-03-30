@@ -1,26 +1,17 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
-using System;
+// You agree to these terms when you use this code.
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
-using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
-using System.Drawing;
-using X360.IO;
-using X360.Profile;
 using X360.Other;
-using X360.Security.Cryptography;
-using X360.IO.STFSExtensions;
 
 namespace X360.STFS
 {
@@ -122,7 +113,7 @@ namespace X360.STFS
             : base(path, ref xCreate) { }
 
         internal CFolderEntry(string path, ref CreateSTFS xCreate)
-            : base(path, ref xCreate){ }
+            : base(path, ref xCreate) { }
 
         /// <summary>
         /// Grabs the files under the directory
@@ -231,7 +222,8 @@ namespace X360.STFS
         /// <summary>
         /// Light
         /// </summary>
-        Light }
+        Light
+    }
 
     /// <summary>
     /// Theme Params

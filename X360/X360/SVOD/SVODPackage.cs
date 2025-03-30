@@ -1,24 +1,19 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using X360.IO;
-using X360.Security;
-using X360.Security.Cryptography;
 using System.Runtime.CompilerServices;
-using X360.STFS;
+using X360.IO;
 using X360.Other;
+using X360.Security.Cryptography;
+using X360.STFS;
 
 namespace X360.SVOD
 {
@@ -37,15 +32,15 @@ namespace X360.SVOD
         static readonly Exception xAccess = new Exception("Could not access all files");
 
         /// <summary>Data file error</summary>
-        public static Exception Size { get { return xSize; }}
+        public static Exception Size { get { return xSize; } }
         /// <summary>Unknown error</summary>
-        public static Exception Unknown { get { return xUnknown; }}
+        public static Exception Unknown { get { return xUnknown; } }
         /// <summary>Count error</summary>
-        public static Exception Count { get { return xCount; }}
+        public static Exception Count { get { return xCount; } }
         /// <summary>Stream access error</summary>
-        public static Exception Access { get { return xAccess; }}
+        public static Exception Access { get { return xAccess; } }
     }
-    
+
     /// <summary>
     /// SVOD Handler
     /// </summary>
@@ -56,24 +51,24 @@ namespace X360.SVOD
         [CompilerGenerated]
         uint xBlockCount;
         [CompilerGenerated]
-        DJsIO[] xDataFiles;
+        FXIO[] xDataFiles;
         [CompilerGenerated]
         uint xDeviation;
         [CompilerGenerated]
         bool xIsShifted = false;
         [CompilerGenerated]
-        DJsIO IO;
+        FXIO IO;
         [CompilerGenerated]
         bool xActive = false;
 
         bool dataloaded { get { return xDataFiles != null; } }
         /// <summary>Header information</summary>
-        public HeaderData Header { get { return xHeaderData; }}
+        public HeaderData Header { get { return xHeaderData; } }
         /// <summary>Tells if package is valid</summary>
-        public bool IsValid { get { return xHeaderData != null; }}
+        public bool IsValid { get { return xHeaderData != null; } }
         /// <summary>Package deviation</summary>
         public uint Deviation { get { return xDeviation; } }
-        
+
         bool ActiveCheck()
         {
             if (xActive)
@@ -88,7 +83,7 @@ namespace X360.SVOD
         /// <param name="xHeaderIO">Stream to header information</param>
         /// <param name="xDataPath">Path of data files, null if you want to want to load header only</param>
         /// </summary>
-        public SVODPackage(DJsIO xHeaderIO, string xDataPath)
+        public SVODPackage(FXIO xHeaderIO, string xDataPath)
         {
             xActive = true;
             if (xDataPath != null && xDataPath != "")
@@ -119,13 +114,13 @@ namespace X360.SVOD
                 xActive = false;
                 return;
             }
-            try { xDataFiles = new DJsIO[(int)xHeaderData.DataFileCount]; }
+            try { xDataFiles = new FXIO[(int)xHeaderData.DataFileCount]; }
             catch { throw SVODExcepts.Unknown; }
             if (xDataFiles.Length > 9999 || xDataFiles.Length == 0)
                 throw SVODExcepts.Count;
             for (uint i = 0; i < xDataFiles.Length; i++)
             {
-                xDataFiles[i] = new DJsIO(xDataPath + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
+                xDataFiles[i] = new FXIO(xDataPath + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
                 if (!xDataFiles[i].Accessed) { throw SVODExcepts.Access; }
             }
             xActive = false;
@@ -136,14 +131,15 @@ namespace X360.SVOD
         /// <param name="xDataPath">Path of data files, null if you want to want to load header only</param>
         /// </summary>
         public SVODPackage(string FileLocale, string xDataPath) :
-            this(new DJsIO(FileLocale, DJFileMode.Open, true), xDataPath) { }
+            this(new FXIO(FileLocale, DJFileMode.Open, true), xDataPath)
+        { }
 
         /// <summary>
         /// Extract the data of the package
         /// </summary>
         /// <param name="xIOOut"></param>
         /// <returns></returns>
-        public bool ExtractData(DJsIO xIOOut)
+        public bool ExtractData(FXIO xIOOut)
         {
             if (!dataloaded || xIOOut == null || !xIOOut.Accessed || !ActiveCheck())
                 return false;
@@ -169,7 +165,7 @@ namespace X360.SVOD
             xDataFiles[datafile].Write(xHash);
         }
 
-        void takehash(long read, DJsIO readio, long write, DJsIO writeio)
+        void takehash(long read, FXIO readio, long write, FXIO writeio)
         {
             readio.Position = read;
             writeio.Position = write;
@@ -207,13 +203,13 @@ namespace X360.SVOD
         {
             if (!ActiveCheck())
                 return false;
-            DJsIO[] xnewdats = null;
+            FXIO[] xnewdats = null;
             try
             {
-                xnewdats = new DJsIO[xHeaderData.DataFileCount];
+                xnewdats = new FXIO[xHeaderData.DataFileCount];
                 for (uint i = 0; i < xHeaderData.DataFileCount; i++)
                 {
-                    xnewdats[i] = new DJsIO(xDataPath + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
+                    xnewdats[i] = new FXIO(xDataPath + SVODFuncs.formatstring((uint)i), DJFileMode.Open, true);
                     if (!xnewdats[i].Accessed) { throw SVODExcepts.Access; }
                 }
             }
@@ -221,7 +217,7 @@ namespace X360.SVOD
             {
                 if (xnewdats != null)
                 {
-                    foreach (DJsIO x in xnewdats)
+                    foreach (FXIO x in xnewdats)
                     {
                         if (x != null)
                             x.Close();
@@ -231,7 +227,7 @@ namespace X360.SVOD
             }
             if (dataloaded || xDataFiles != null)
             {
-                foreach (DJsIO x in xDataFiles)
+                foreach (FXIO x in xDataFiles)
                     x.Close();
                 xDataFiles = null;
             }
@@ -255,7 +251,7 @@ namespace X360.SVOD
         {
             try
             {
-                DJsIO xio = new DJsIO(true);
+                FXIO xio = new FXIO(true);
                 xHeaderData.Write(ref xio);
                 xio.SetLength(0xB000);
                 xio.Position = 0x340;
@@ -333,7 +329,7 @@ namespace X360.SVOD
             IO.Close();
             if (dataloaded)
             {
-                foreach (DJsIO x in xDataFiles)
+                foreach (FXIO x in xDataFiles)
                     x.Close();
             }
             return true;

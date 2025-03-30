@@ -1,24 +1,19 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.IO;
 using System.Runtime.CompilerServices;
-using Microsoft.Win32.SafeHandles;
-using Microsoft.Win32;
 using X360.IO;
-using X360.IO.FATXExtensions;
 using X360.Other;
 
 namespace X360.FATX
@@ -56,16 +51,19 @@ namespace X360.FATX
     /// <summary>
     /// Xbox Memory Card values
     /// </summary>
-    public enum MU : long {
+    public enum MU : long
+    {
         /// <summary>Cache</summary>
         Partition1 = 0,
         /// <summary>Content</summary>
-        Partition2 = 0x7FF000  }
-   
+        Partition2 = 0x7FF000
+    }
+
     /// <summary>
     /// USB Flash Drive offsets
     /// </summary>
-    public enum USB : long {
+    public enum USB : long
+    {
         /// <summary>Cache</summary>
         Partition1 = 0x8000400,
         /// <summary>Content</summary>
@@ -122,31 +120,31 @@ namespace X360.FATX
         static readonly Exception xTypeConflict = new Exception("Not a folder");
         [CompilerGenerated]
         static readonly Exception xFolderContents = new Exception("Folder has contents");
-        
+
         /// <summary>
         /// General error
         /// </summary>
-        public static Exception PartitionExcept { get { return xPartitionExcept; }}
+        public static Exception PartitionExcept { get { return xPartitionExcept; } }
         /// <summary>
         /// Not a FATX drive
         /// </summary>
-        public static Exception DriveExcept { get { return xDriveExcept; }}
+        public static Exception DriveExcept { get { return xDriveExcept; } }
         /// <summary>
         /// Invalid size
         /// </summary>
-        public static Exception SizeExcept { get { return xSizeExcept; }}
+        public static Exception SizeExcept { get { return xSizeExcept; } }
         /// <summary>
         /// Not a valid instance
         /// </summary>
-        public static Exception ValidExcept { get { return xValidExcept; }}
+        public static Exception ValidExcept { get { return xValidExcept; } }
         /// <summary>
         /// Not a folder
         /// </summary>
-        public static Exception TypeConflict { get { return xTypeConflict; }}
+        public static Exception TypeConflict { get { return xTypeConflict; } }
         /// <summary>
         /// Folder has contents
         /// </summary>
-        public static Exception FolderContents { get { return xFolderContents; }}
+        public static Exception FolderContents { get { return xFolderContents; } }
     }
     /// <summary>
     /// Object to hold a device
@@ -219,7 +217,7 @@ namespace X360.FATX
             if (xDrive == null)
                 return false;
             xDrive.MakeHandle();
-            DJsIO xIO = new DriveIO(xDrive, true);
+            FXIO xIO = new DriveIO(xDrive, true);
             return IsFATX(ref xIO, out xType);
         }
 
@@ -229,7 +227,7 @@ namespace X360.FATX
         /// <param name="xIO">Stream to check</param>
         /// <param name="xType">Grabs the type of drive</param>
         /// <returns></returns>
-        public static bool IsFATX(ref DJsIO xIO, out DriveTypes xType)
+        public static bool IsFATX(ref FXIO xIO, out DriveTypes xType)
         {
             // Tries to read the offsets of Xbox 360 drives to see if the magic's match
             xType = DriveTypes.Unknown;
@@ -250,7 +248,7 @@ namespace X360.FATX
                 string dat0 = ((DriveIO)xIO).xDrive.DeviceName + @"\Xbox360\Data0000";
                 if (!File.Exists(dat0))
                     throw new Exception();
-                DJsIO xio = new DJsIO(dat0, DJFileMode.Open, true);
+                FXIO xio = new FXIO(dat0, DJFileMode.Open, true);
                 if (!xio.Accessed)
                     throw new Exception();
                 xio.Position = (long)USB.Partition1;
@@ -346,7 +344,7 @@ namespace X360.FATX
         [CompilerGenerated]
         DriveTypes xType = DriveTypes.Unknown;
         [CompilerGenerated]
-        internal DJsIO xIO = null;
+        internal FXIO xIO = null;
         [CompilerGenerated]
         bool xactive = false; // To prevent multithread errors
 
@@ -356,7 +354,7 @@ namespace X360.FATX
             set
             {
                 xactive = value;
-                if (!value && IsDriveIO && xType != DriveTypes.USBFlashDrive )
+                if (!value && IsDriveIO && xType != DriveTypes.USBFlashDrive)
                     xIO.Close();
             }
         }
@@ -375,11 +373,11 @@ namespace X360.FATX
         /// <summary>
         /// Is an IO to a device
         /// </summary>
-        public bool IsDriveIO { get { return xDrive != null; }}
+        public bool IsDriveIO { get { return xDrive != null; } }
         /// <summary>
         /// Determines if this Drive is successfully obtained
         /// </summary>
-        public FATXPartition[] Partitions { get { return xPartitions.ToArray(); }}
+        public FATXPartition[] Partitions { get { return xPartitions.ToArray(); } }
         /// <summary>
         /// True if parse success
         /// </summary>
@@ -504,7 +502,7 @@ namespace X360.FATX
             }
             xFolderOut = xFold;
             return xFold.xRead();
-            
+
         }
         /// <summary>
         /// Attempts to read to a specified location
@@ -648,7 +646,7 @@ namespace X360.FATX
         /// <param name="FileLocale"></param>
         public FATXDrive(string FileLocale)
         {
-            DJsIO xImage = new DJsIO(FileLocale, DJFileMode.Open, true);
+            FXIO xImage = new FXIO(FileLocale, DJFileMode.Open, true);
             if (xImage == null || !xImage.Accessed)
                 return;
             if (!FATXManagement.IsFATX(ref xImage, out xType))
@@ -662,7 +660,7 @@ namespace X360.FATX
         /// Read a FATX Image
         /// </summary>
         /// <param name="xImage"></param>
-        internal FATXDrive(DJsIO xImage)
+        internal FATXDrive(FXIO xImage)
         {
             if (xImage == null || !xImage.Accessed)
                 return;
@@ -681,8 +679,8 @@ namespace X360.FATX
         {
             if (ActiveCheck())
                 return false;
-            DJsIO xIOOut = null;
-            try { xIOOut = new DJsIO(fileOut, DJFileMode.Create, true); }
+            FXIO xIOOut = null;
+            try { xIOOut = new FXIO(fileOut, DJFileMode.Create, true); }
             catch { return xactive = false; }
             if (!xIOOut.Accessed)
                 return xactive = false;
@@ -693,7 +691,7 @@ namespace X360.FATX
 
         void extthrd(object ioz)
         {
-            DJsIO xIOOut = (DJsIO)ioz;
+            FXIO xIOOut = (FXIO)ioz;
             try
             {
                 GetIO();
@@ -707,7 +705,7 @@ namespace X360.FATX
 
         }
 
-        bool extractimg(DJsIO xIOOut)
+        bool extractimg(FXIO xIOOut)
         {
             System.Threading.Thread x = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(extthrd));
             x.Start(xIOOut);
@@ -723,7 +721,7 @@ namespace X360.FATX
         /// </summary>
         /// <param name="xIOOut"></param>
         /// <returns></returns>
-        public bool ExtractImage(DJsIO xIOOut)
+        public bool ExtractImage(FXIO xIOOut)
         {
             if (ActiveCheck())
                 return false;

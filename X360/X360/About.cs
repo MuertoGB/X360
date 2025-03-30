@@ -1,21 +1,17 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.CompilerServices;
-using System.Web;
 using System.IO;
-using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using X360.IO;
 
@@ -60,7 +56,7 @@ namespace X360
 
         internal UpdateReturn() { }
     }
-    
+
     /// <summary>
     /// Object to hold information about this library
     /// </summary>
@@ -98,9 +94,9 @@ namespace X360
             "or http://www.gnu.org/\r\n\r\n" +
             "Also, as represented by the GPL, any programs used by this must have an open sourced copy released wif it," +
             "which also means you are not allowed to make profit off this app (releasing open source would defeat the purpose anyways). " +
-            "You must not obfuscate or \"protect\" my work, but you are allowed to pack the DLL into a file as long as it isn't obfuscating it."  +
+            "You must not obfuscate or \"protect\" my work, but you are allowed to pack the DLL into a file as long as it isn't obfuscating it." +
             "Any code in here is modifiable (unless otherwise stated) except for the entire About class, TaC (Terms and Conditions), " +
-            "and licenses except by the sole creator of the license/terms, and finally, the creator reserves the right to cite the source of this library anywhere where this code is used " + 
+            "and licenses except by the sole creator of the license/terms, and finally, the creator reserves the right to cite the source of this library anywhere where this code is used " +
             "or endorsed, meaning citing of website, name, etc.  The creator reserves the right to change the TaC from version to version.  You also are to understand that this library " +
             "does not guarantee functionality.  This is a 3rd party creation not built by Microsoft.  The programmer will work to make it perfect and work out any encountered bugs.\r\n\r\n" +
             "By using this library, you agree to these terms and conditions.  These words are not a law governed by countries, but a digital contract governed " +
@@ -146,7 +142,7 @@ namespace X360
         /// </summary>
         public static void WriteLegalLocally()
         {
-            DJsIO xIO = new DJsIO(Application.StartupPath + "/" + "X360 READ ME.txt", DJFileMode.Create, true);
+            FXIO xIO = new FXIO(Application.StartupPath + "/" + "X360 READ ME.txt", DJFileMode.Create, true);
             if (!xIO.Accessed)
                 return;
             xIO.Position = 0;

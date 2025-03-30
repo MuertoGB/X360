@@ -1,34 +1,30 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
-using System.Drawing;
-using System.Security;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using X360.IO;
 using X360.Other;
 using X360.Security.Cryptography;
 using X360.Security.Cryptography.Kerberos;
-using X360.STFS;
-using System.Runtime.CompilerServices;
 
 namespace X360.Profile
 {
     /// <summary>
     /// Account type
     /// </summary>
-    public enum AccountType : byte {
+    public enum AccountType : byte
+    {
         /// <summary>
         /// Stock account
         /// </summary>
@@ -36,7 +32,8 @@ namespace X360.Profile
         /// <summary>
         /// Dev/Demo/Etc Account
         /// </summary>
-        Kits }
+        Kits
+    }
 
     /// <summary>
     /// Pass code values
@@ -77,7 +74,8 @@ namespace X360.Profile
         /// <summary></summary>
         Silver = 0x30,
         /// <summary></summary>
-        Gold = 0x60 }
+        Gold = 0x60
+    }
 
     /// <summary>
     /// Object to hold a user Account
@@ -87,9 +85,9 @@ namespace X360.Profile
         [CompilerGenerated]
         bool xSuccess = false;
         [CompilerGenerated]
-        internal DJsIO IO = null;
+        internal FXIO IO = null;
         [CompilerGenerated]
-        DJsIO xBackup = null;
+        FXIO xBackup = null;
         [CompilerGenerated]
         byte[] xHVKey;
         [CompilerGenerated]
@@ -106,15 +104,15 @@ namespace X360.Profile
         /// <summary>
         /// Account XUID
         /// </summary>
-        public ulong XUID { get { return xXUID; }}
+        public ulong XUID { get { return xXUID; } }
         /// <summary>
         /// Can go on Xbox Live
         /// </summary>
-        public bool IsLiveEnabled { get { return xIsLive; }}
+        public bool IsLiveEnabled { get { return xIsLive; } }
         /// <summary>
         /// Parse success
         /// </summary>
-        public bool Success { get { return xSuccess; }}
+        public bool Success { get { return xSuccess; } }
         /// <summary>
         /// Gets/Sets account type
         /// </summary>
@@ -142,19 +140,19 @@ namespace X360.Profile
         /// <param name="xAcc"></param>
         /// <param name="xType"></param>
         /// <param name="CreateBackup"></param>
-        public UserAccount(DJsIO xAcc, AccountType xType, bool CreateBackup)
+        public UserAccount(FXIO xAcc, AccountType xType, bool CreateBackup)
         {
             if (xAcc.Length != 404 || !Enum.IsDefined(typeof(AccountType), xType))
                 return;
             IO = xAcc;
             xHS = new HMACSHA1();
             ThisType = xType;
-            DJsIO xfill;
+            FXIO xfill;
             if (xDecrypt(out xfill))
             {
                 if (CreateBackup)
                 {
-                    xBackup = new DJsIO(true);
+                    xBackup = new FXIO(true);
                     xBackup.Position = 0;
                     xBackup.Write(IO.ReadStream());
                 }
@@ -188,7 +186,7 @@ namespace X360.Profile
             return buff2;
         }
 
-        bool xDecrypt(out DJsIO PayLoad)
+        bool xDecrypt(out FXIO PayLoad)
         {
             PayLoad = null;
             try
@@ -203,17 +201,17 @@ namespace X360.Profile
                     return false;
                 bool xsuccess = xComputeHeaderKey(xConfounder, xPayload).HexString() == xHeaderKey.HexString();
                 if (xsuccess)
-                    PayLoad = new DJsIO(xPayload, true);
+                    PayLoad = new FXIO(xPayload, true);
                 return xsuccess;
             }
             catch { return false; }
         }
 
-        DJsIO GetDecrypt()
+        FXIO GetDecrypt()
         {
             if (!xSuccess)
                 return null;
-            DJsIO xReturn;
+            FXIO xReturn;
             xDecrypt(out xReturn);
             return xReturn;
         }
@@ -224,11 +222,11 @@ namespace X360.Profile
         /// <returns></returns>
         public byte[] GetDecryptedData()
         {
-            DJsIO x = GetDecrypt();
+            FXIO x = GetDecrypt();
             return x.ReadStream();
         }
 
-        bool xEncrypt(ref DJsIO xNewPayload)
+        bool xEncrypt(ref FXIO xNewPayload)
         {
             try
             {
@@ -236,7 +234,7 @@ namespace X360.Profile
                     return false;
                 if (xIsLive)
                 {
-                    byte[] xService = (ThisType == AccountType.Stock ? 
+                    byte[] xService = (ThisType == AccountType.Stock ?
                         new byte[] { 0x50, 0x52, 0x4F, 0x44 } : // PROD
                         new byte[] { 0x50, 0x41, 0x53, 0x54 }); // PART
                     xNewPayload.Position = 0x34;
@@ -283,7 +281,7 @@ namespace X360.Profile
         /// <returns></returns>
         public string GetGamertag()
         {
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return "";
             xTemp.Position = 8;
@@ -300,7 +298,7 @@ namespace X360.Profile
         {
             if (!xSuccess)
                 return false;
-            DJsIO xTemp;
+            FXIO xTemp;
             if (!xDecrypt(out xTemp))
                 return false;
             xTemp.Position = 8;
@@ -314,7 +312,7 @@ namespace X360.Profile
         /// <returns></returns>
         public PassCode[] GetPassCode()
         {
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return new PassCode[0];
             xTemp.Position = 0;
@@ -344,7 +342,7 @@ namespace X360.Profile
             if (xPass == null || xPass.Length != 4 ||
                  xPass.Contains(PassCode.Null))
                 return false;
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return false;
             xTemp.Position = 0x38;
@@ -359,7 +357,7 @@ namespace X360.Profile
         /// <returns></returns>
         public Membership GetMembership()
         {
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return Membership.None;
             xTemp.Position = 0x31;
@@ -373,7 +371,7 @@ namespace X360.Profile
         /// <returns></returns>
         public bool SaveMembership(Membership xMemberType)
         {
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return false;
             xTemp.Position = 0x31;
@@ -387,7 +385,7 @@ namespace X360.Profile
         /// <returns></returns>
         public bool ForceIntoHDDAccount()
         {
-            DJsIO xTemp = GetDecrypt();
+            FXIO xTemp = GetDecrypt();
             if (xTemp == null)
                 return false;
             xTemp.Position = 0;

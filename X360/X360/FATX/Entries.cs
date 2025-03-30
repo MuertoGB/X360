@@ -128,7 +128,7 @@ namespace X360.FATX
         }
         #endregion
 
-        internal FATXEntry(ref FATXEntry entry, ref FATXDrive xdrive)
+        internal FATXEntry(ref FATXEntry entry, ref FATXDrive drive)
         {
             FXOffset = entry.FXOffset;
             FXNameLength = entry.FXNameLength;
@@ -151,7 +151,7 @@ namespace X360.FATX
 
             try
             {
-                DJsIO ioStream = new DJsIO(buffer, true);
+                FXIO ioStream = new FXIO(buffer, true);
                 FXNameLength = ioStream.ReadByte();
 
                 // Validate name length
@@ -284,34 +284,34 @@ namespace X360.FATX
                 return false;
             }
 
-            DJsIO inIO;
+            FXIO fxIO;
 
             try
             {
-                inIO = new DJsIO(inFile, DJFileMode.Open, true);
+                fxIO = new FXIO(inFile, DJFileMode.Open, true);
             }
             catch
             {
                 return FXDrive.xActive = false;
             }
 
-            if (inIO == null || !inIO.Accessed)
+            if (fxIO == null || !fxIO.Accessed)
             {
                 return FXDrive.xActive = false;
             }
 
             try
             {
-                return InjectInternal(inIO) & !(FXDrive.xActive = false);
+                return InjectInternal(fxIO) & !(FXDrive.xActive = false);
             }
             catch
             {
-                inIO.Close();
+                fxIO.Close();
                 return FXDrive.xActive = false;
             }
         }
 
-        internal bool InjectInternal(DJsIO inIO)
+        internal bool InjectInternal(FXIO inIO)
         {
             List<uint> blockChain = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
 
@@ -380,11 +380,11 @@ namespace X360.FATX
                 return false;
             }
 
-            DJsIO inIO;
+            FXIO inIO;
 
             try
             {
-                inIO = new DJsIO(inFile, DJFileMode.Open, true);
+                inIO = new FXIO(inFile, DJFileMode.Open, true);
             }
             catch
             {
@@ -398,7 +398,7 @@ namespace X360.FATX
             return xReplace(inIO) & !(FXDrive.xActive = false);
         }
 
-        internal bool xReplace(DJsIO xIOIn)
+        internal bool xReplace(FXIO xIOIn)
         {
             uint bu = StartBlock;
             int size = FXEntrySize;
@@ -447,7 +447,7 @@ namespace X360.FATX
             catch { return (FXDrive.xActive = false); }
         }
 
-        internal bool xExtract(ref DJsIO xIOOut)
+        internal bool xExtract(ref FXIO xIOOut)
         {
             try
             {
@@ -481,7 +481,7 @@ namespace X360.FATX
             if (FXDrive.ActiveCheck())
                 return false;
             bool xReturn = false;
-            DJsIO xIO = new DJsIO(true);
+            FXIO xIO = new FXIO(true);
             try
             {
                 xReturn = xExtract(ref xIO);
@@ -598,10 +598,10 @@ namespace X360.FATX
                     throw new Exception();
                 io.Position = (int)xDesc.GenerateDataOffset(block);
                 byte[] databuff = io.ReadBytes(404);
-                Profile.UserAccount ua = new X360.Profile.UserAccount(new DJsIO(databuff, true), X360.Profile.AccountType.Stock, false);
+                Profile.UserAccount ua = new X360.Profile.UserAccount(new FXIO(databuff, true), X360.Profile.AccountType.Stock, false);
                 if (!ua.Success)
                 {
-                    ua = new X360.Profile.UserAccount(new DJsIO(databuff, true), X360.Profile.AccountType.Kits, false);
+                    ua = new X360.Profile.UserAccount(new FXIO(databuff, true), X360.Profile.AccountType.Kits, false);
                     if (!ua.Success)
                         throw new Exception();
                 }
@@ -757,7 +757,7 @@ namespace X360.FATX
                     if (x.Name == FolderName)
                         return (FXDrive.xActive = false);
                 }
-                DJsIO xIOIn = new DJsIO(new byte[Partition.xBlockSize], true);
+                FXIO xIOIn = new FXIO(new byte[Partition.xBlockSize], true);
                 uint xnew = 0;
                 long xpos = GetNewEntryPos(out xnew);
                 if (xpos == -1)
@@ -799,8 +799,8 @@ namespace X360.FATX
             FileName.IsValidXboxName();
             if (FXDrive.ActiveCheck())
                 return false;
-            DJsIO xIOIn = null;
-            try { xIOIn = new DJsIO(FileLocation, DJFileMode.Open, true); }
+            FXIO xIOIn = null;
+            try { xIOIn = new FXIO(FileLocation, DJFileMode.Open, true); }
             catch { return (FXDrive.xActive = false); }
             try
             {
@@ -856,7 +856,7 @@ namespace X360.FATX
                 return false;
             foreach (FATXFileEntry x in xread.Files)
             {
-                DJsIO xIOOut = new DJsIO(xOut + "/" + x.Name, DJFileMode.Create, true);
+                FXIO xIOOut = new FXIO(xOut + "/" + x.Name, DJFileMode.Create, true);
                 if (!xIOOut.Accessed)
                     continue;
                 x.xExtract(ref xIOOut);
@@ -960,7 +960,7 @@ namespace X360.FATX
             uint dirblock = xdrive.xIO.ReadUInt32();
             xFATSize = (int)(blockct * (byte)FatType);
             xFATSize += (0x1000 - (xFATSize % 0x1000));
-            xTable = new AllocationTable(new DJsIO(true), (uint)((xPartitionSize - 0x1000 - xFATSize) / xBlockSize), FatType);
+            xTable = new AllocationTable(new FXIO(true), (uint)((xPartitionSize - 0x1000 - xFATSize) / xBlockSize), FatType);
             xTable.xAllocTable.Position = 0;
             xDrive.xIO.Position = xFATLocale;
             for (int i = 0; i < xFATSize; i += 0x1000)
@@ -1012,7 +1012,7 @@ namespace X360.FATX
 
         }
 
-        internal bool WriteFile(uint[] xChain, ref DJsIO xIOIn)
+        internal bool WriteFile(uint[] xChain, ref FXIO xIOIn)
         {
             try
             {
@@ -1033,7 +1033,7 @@ namespace X360.FATX
         {
             string xfn = xTable.xAllocTable.FileNameLong;
             xTable.xAllocTable.Close();
-            xTable.xAllocTable = new DJsIO(xfn, DJFileMode.Create, true);
+            xTable.xAllocTable = new FXIO(xfn, DJFileMode.Create, true);
             xdrive.GetIO();
             xdrive.xIO.Position = xFATLocale;
             xTable.xAllocTable.Write(xdrive.xIO.ReadBytes(xFATSize));
@@ -1061,13 +1061,13 @@ namespace X360.FATX
     class AllocationTable
     {
         [CompilerGenerated]
-        public DJsIO xAllocTable;
+        public FXIO xAllocTable;
         [CompilerGenerated]
         public uint BlockCount;
         [CompilerGenerated]
         FATXType PartitionType;
 
-        public AllocationTable(DJsIO xIOIn, uint xCount, FATXType xType)
+        public AllocationTable(FXIO xIOIn, uint xCount, FATXType xType)
         {
             xAllocTable = xIOIn;
             BlockCount = xCount;

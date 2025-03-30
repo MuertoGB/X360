@@ -1,23 +1,21 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Diagnostics;
 using X360.IO;
 using X360.Other;
-using X360.STFS;
 
 namespace X360.Profile
 {
@@ -35,25 +33,25 @@ namespace X360.Profile
         static readonly Exception xNameError = new Exception("GPD does not contain a name");
         [CompilerGenerated]
         static readonly Exception xInUse = new Exception("Current file is in use");
-        
+
         /// <summary>
         /// Has ID
         /// </summary>
-        public static Exception HasID { get { return xHasID; }}
+        public static Exception HasID { get { return xHasID; } }
         /// <summary>
         /// Not XDBF
         /// </summary>
-        public static Exception IsntXDBF { get { return xIsntXDBF; }}
+        public static Exception IsntXDBF { get { return xIsntXDBF; } }
         /// <summary>
         /// Name Error
         /// </summary>
-        public static Exception NameError { get { return xNameError; }}
+        public static Exception NameError { get { return xNameError; } }
         /// <summary>
         /// Cannot multitask
         /// </summary>
-        public static Exception InUse { get { return xInUse; }}
+        public static Exception InUse { get { return xInUse; } }
     }
-    
+
     /// <summary> ID's found in GPDs </summary>
     public enum GPDIDs : long
     {
@@ -286,7 +284,7 @@ namespace X360.Profile
         /// ID of entry
         /// </summary>
         public long ID { get { return xID; } }
-        internal bool Valid { get { return (xRef != null); }}
+        internal bool Valid { get { return (xRef != null); } }
 
         internal XDBFEntry(GPD GPDRef)
         {
@@ -327,7 +325,7 @@ namespace X360.Profile
         internal long xID;
         [CompilerGenerated]
         internal long xSync;
-        
+
         /// <summary>
         /// Entry ID
         /// </summary>
@@ -336,7 +334,7 @@ namespace X360.Profile
         /// Sync ID
         /// </summary>
         public long Sync { get { return xSync; } }
-        
+
         internal SyncPair(long xid, long xsync)
         {
             xID = xid;
@@ -357,14 +355,14 @@ namespace X360.Profile
         /// </summary>
         public SyncPair[] SyncPairs { get { return xpairs.ToArray(); } }
 
-        internal RecordEntry(XDBFEntry xEntry) : base(xEntry) {}
+        internal RecordEntry(XDBFEntry xEntry) : base(xEntry) { }
 
         internal bool xLoadDetails()
         {
             try
             {
                 xRef.xIO.Position = Offset;
-                DJsIO xbuff = new DJsIO(xRef.xIO.ReadBytes(Size), true);
+                FXIO xbuff = new FXIO(xRef.xIO.ReadBytes(Size), true);
                 xbuff.Position = 0;
                 while (xbuff.Position < xbuff.Length)
                 {
@@ -395,7 +393,7 @@ namespace X360.Profile
                     xRef.PatchFree();
                     xOffset = off;
                 }
-                DJsIO xbuff = new DJsIO(new byte[xsize], true);
+                FXIO xbuff = new FXIO(new byte[xsize], true);
                 xbuff.Position = 0;
                 foreach (SyncPair x in xpairs)
                 {
@@ -723,11 +721,11 @@ namespace X360.Profile
         /// <summary>
         /// Last sync'ed entry
         /// </summary>
-        public long Last { get { return xLastSync; }}
+        public long Last { get { return xLastSync; } }
         /// <summary>
         /// Next assignable sync ID
         /// </summary>
-        public long Next { get { return xNext; }}
+        public long Next { get { return xNext; } }
 
         internal SyncEntry(XDBFEntry xEntry) : base(xEntry) { }
 
@@ -860,7 +858,7 @@ namespace X360.Profile
         byte[] xData;
         [CompilerGenerated]
         bool xLoaded = false;
-        
+
         /// <summary>
         /// Binary Data
         /// </summary>
@@ -994,7 +992,7 @@ namespace X360.Profile
         [CompilerGenerated]
         public uint TitleID = 0;
         [CompilerGenerated]
-        internal DJsIO xIO = null;
+        internal FXIO xIO = null;
         [CompilerGenerated]
         internal int xEntryMax = 0;
         [CompilerGenerated]
@@ -1024,14 +1022,14 @@ namespace X360.Profile
         [CompilerGenerated]
         internal List<FreeSpaceEntry> xFreeEnts = new List<FreeSpaceEntry>();
         /// <summary>GPD Images</summary>
-        public ImageEntry[] Images { get { return xImages.ToArray(); }}
+        public ImageEntry[] Images { get { return xImages.ToArray(); } }
         /// <summary>GPD Strings</summary>
-        public StringEntry[] Strings { get { return xStrings.ToArray(); }}
+        public StringEntry[] Strings { get { return xStrings.ToArray(); } }
         /// <summary>GPD Settings</summary>
-        public Setting[] UserSettings { get { return xUserSettings.ToArray(); }}
+        public Setting[] UserSettings { get { return xUserSettings.ToArray(); } }
         /// <summary>GPD Unknown Data</summary>
-        public OtherEntry[] UnknownData { get { return xUnknownData.ToArray(); }}
-        internal int HeaderSize { get { return (0x18 + (xEntryMax * 0x12) + (xFreeMax * 8)); }}
+        public OtherEntry[] UnknownData { get { return xUnknownData.ToArray(); } }
+        internal int HeaderSize { get { return (0x18 + (xEntryMax * 0x12) + (xFreeMax * 8)); } }
         /// <summary>GPD Parsed correctly</summary>
         public bool IsValid { get { return (xIO != null); } }
         /// <summary>GPD Sync Indexes</summary>
@@ -1063,7 +1061,7 @@ namespace X360.Profile
         internal GPD(string GPDLocale, uint xTitleID)
         {
             xActive = true;
-            xIO = new DJsIO(GPDLocale, DJFileMode.Open, true);
+            xIO = new FXIO(GPDLocale, DJFileMode.Open, true);
             if (!xIO.Accessed)
                 return;
             TitleID = xTitleID;
@@ -1231,7 +1229,7 @@ namespace X360.Profile
 
         internal bool IncreaseXDBFCount()
         {
-            DJsIO xtemp = new DJsIO(true);
+            FXIO xtemp = new FXIO(true);
             try
             {
                 xtemp.Position = (HeaderSize + (0xFF * 0x12));
@@ -1272,7 +1270,7 @@ namespace X360.Profile
                 xtemp.Close();
                 xIO.Close();
                 VariousFunctions.MoveFile(xtemp.FileNameLong, xIO.FileNameLong);
-                xIO = new DJsIO(xIO.FileNameLong, DJFileMode.Open, true);
+                xIO = new FXIO(xIO.FileNameLong, DJFileMode.Open, true);
                 return true;
             }
             catch { xtemp.Dispose(true); return false; }
@@ -1347,7 +1345,7 @@ namespace X360.Profile
         {
             if (!ParseCheck())
                 return null;
-            foreach(StringEntry x in xStrings)
+            foreach (StringEntry x in xStrings)
             {
                 if (x.ID != xID)
                     continue;
@@ -1357,7 +1355,7 @@ namespace X360.Profile
             xActive = false;
             return null;
         }
-            
+
         /// <summary>
         /// Grabs an image via ID
         /// </summary>
@@ -2040,6 +2038,6 @@ namespace X360.Profile
         /// Grabs the stream
         /// </summary>
         /// <returns></returns>
-        public DJsIO GetStream() { return xIO; }
+        public FXIO GetStream() { return xIO; }
     }
 }

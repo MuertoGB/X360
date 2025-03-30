@@ -1,25 +1,18 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
-using System.Drawing;
 using X360.IO;
-using X360.Profile;
 using X360.Other;
-using X360.Security.Cryptography;
+using X360.Profile;
 
 namespace X360.STFS
 {
@@ -65,23 +58,23 @@ namespace X360.STFS
         /// <summary>
         /// Dash GPD
         /// </summary>
-        public DashGPD UserGPD { get { return xUserGPD; }}
+        public DashGPD UserGPD { get { return xUserGPD; } }
         /// <summary>
         /// Has Dash and Account
         /// </summary>
-        public bool IsValidProfile { get { return (xUserFile != null && xUserFile != null); }}
+        public bool IsValidProfile { get { return (xUserFile != null && xUserFile != null); } }
         /// <summary>
         /// Has Dash GPD
         /// </summary>
-        public bool HasDashGPD { get { return (xUserGPD != null); }}
+        public bool HasDashGPD { get { return (xUserGPD != null); } }
         /// <summary>
         /// Has Account file
         /// </summary>
-        public bool HasValidAccount { get { return (xUserFile != null); }}
+        public bool HasValidAccount { get { return (xUserFile != null); } }
         /// <summary>
         /// Account
         /// </summary>
-        public UserAccount UserFile { get { return xUserFile; }}
+        public UserAccount UserFile { get { return xUserFile; } }
 
         /// <summary>
         /// Initializes an instance
@@ -99,7 +92,7 @@ namespace X360.STFS
         /// </summary>
         /// <param name="x"></param>
         /// <param name="LogIn"></param>
-        public ProfilePackage(ref DJsIO x, LogRecord LogIn)
+        public ProfilePackage(ref FXIO x, LogRecord LogIn)
             : base(x, LogIn)
         {
             if (Header.ThisType == PackageType.Profile)
@@ -160,7 +153,7 @@ namespace X360.STFS
             FileEntry x = GetFile(ID.ToString("X") + ".gpd");
             if (x == null)
                 return null;
-            DJsIO y = x.GetTempIO(true);
+            FXIO y = x.GetTempIO(true);
             if (y == null || !y.Accessed)
             {
                 y.Close();
@@ -202,7 +195,7 @@ namespace X360.STFS
                     if (HasValidAccount)
                         xUserFile.IO.Dispose();
                     AddToLog("Parsing Account file");
-                    DJsIO xAcctIO = xacct.GetTempIO(true);
+                    FXIO xAcctIO = xacct.GetTempIO(true);
                     if (xAcctIO == null || !xAcctIO.Accessed)
                     {
                         if (xAcctIO != null)
@@ -229,7 +222,7 @@ namespace X360.STFS
             if (xdash != null)
             {
                 AddToLog("Parsing User GPD");
-                DJsIO xFFIO = xdash.GetTempIO(true);
+                FXIO xFFIO = xdash.GetTempIO(true);
                 if (xFFIO == null || !xFFIO.Accessed)
                 {
                     if (xFFIO != null)

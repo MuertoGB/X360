@@ -1,22 +1,20 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Security.Cryptography;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using X360.IO;
-using X360.Security.Cryptography;
 using X360.Other;
+using X360.Security.Cryptography;
 
 namespace X360
 {
@@ -252,9 +250,9 @@ namespace X360.STFS
         /// <summary>Unsuccessful function run</summary>
         public static Exception Unsuccessful { get { return xUnsuccess; } }
         /// <summary>File in use</summary>
-        public static Exception InUse { get { return xInUse; }}
+        public static Exception InUse { get { return xInUse; } }
         /// <summary>Game package, not STFS</summary>
-        public static Exception Game { get { return xGame; }}
+        public static Exception Game { get { return xGame; } }
         /// <summary>Theme error</summary>
         public static Exception ThemeError { get { return xTheme; } }
         /// <summary>Contains Invalid characters</summary>
@@ -309,7 +307,7 @@ namespace X360.STFS
         /// </summary>
         public bool Valid { get { return xV; } }
 
-        void XLoadCON(DJsIO xKV)
+        void XLoadCON(FXIO xKV)
         {
             int xbase = 0;
             if (xKV.Length == 0x4000)
@@ -348,7 +346,7 @@ namespace X360.STFS
         /// Import RSA attributes from an Xbox360 Keyvault for CON
         /// </summary>
         /// <param name="xKV"></param>
-        public RSAParams(DJsIO xKV) { XLoadCON(xKV); }
+        public RSAParams(FXIO xKV) { XLoadCON(xKV); }
 
         /// <summary>
         /// Impor RSA attributes from an Xbox360 Keyvault location for Con
@@ -356,7 +354,7 @@ namespace X360.STFS
         /// <param name="xKVLocation"></param>
         public RSAParams(string xKVLocation)
         {
-            DJsIO xKV = new DJsIO(xKVLocation, DJFileMode.Open, true);
+            FXIO xKV = new FXIO(xKVLocation, DJFileMode.Open, true);
             if (!xKV.Accessed)
                 throw STFSExcepts.IOAccess;
             XLoadCON(xKV);
@@ -369,15 +367,15 @@ namespace X360.STFS
         /// <param name="xTypeIn"></param>
         public RSAParams(StrongSigned xTypeIn)
         {
-            DJsIO xReader = null;
+            FXIO xReader = null;
             switch (xTypeIn)
             {
                 case StrongSigned.LIVE:
-                    xReader = new DJsIO(global::X360.Properties.Resources.XK4, true);
+                    xReader = new FXIO(global::X360.Properties.Resources.XK4, true);
                     break;
-                    
+
                 case StrongSigned.PIRS:
-                    xReader = new DJsIO(global::X360.Properties.Resources.XK5, true);
+                    xReader = new FXIO(global::X360.Properties.Resources.XK5, true);
                     break;
 
                 default:
@@ -422,7 +420,7 @@ namespace X360.STFS
         public ItemType ThisType { get { return xThisType; } }
         /// <summary>Returns if this is verified or invalid</summary>
         public bool IsValid { get { return xValid; } }
-        
+
         internal Verified(ItemType xType, bool xCheck, long xInLoc, long xVerifLoc)
         {
             xValid = xCheck;

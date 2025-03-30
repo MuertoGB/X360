@@ -1,20 +1,19 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Security.Cryptography;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 using X360.IO;
 using X360.Security.Cryptography.Kerberos;
 
@@ -41,7 +40,7 @@ namespace X360.Security.Cryptography.Kerberos
             xConfounder = new byte[0];
             try
             {
-                DJsIO xOut = new DJsIO(x.RunAlgorithm(xData), true);
+                FXIO xOut = new FXIO(x.RunAlgorithm(xData), true);
                 xOut.Position = 0;
                 xConfounder = xOut.ReadBytes(xConLen);
                 xPayload = xOut.ReadBytes(xData.Length - xConLen);
@@ -146,7 +145,7 @@ namespace X360.Security.Cryptography
         /// Initializes this class with a specified ASCII string key
         /// </summary>
         /// <param name="xKey"></param>
-        public RC4(string xKey) { KeyASCII = xKey;}
+        public RC4(string xKey) { KeyASCII = xKey; }
 
         /// <summary>
         /// Gets or sets the key as an ASCII string
@@ -246,7 +245,7 @@ namespace X360.Security.Cryptography
             RC4 xrc4 = new RC4(xKey);
             return xrc4.RunAlgorithm(xData);
         }
-        
+
         /// <summary>
         /// Runs a Kerberos RC4 encryption on the specified data
         /// </summary>
@@ -350,7 +349,7 @@ namespace X360.Security.Cryptography
         {
             if ((xPiece.Length % 8) != 0)
                 throw new Exception("Input not divisible by 8");
-            DJsIO xStream = new DJsIO(xPiece, true);
+            FXIO xStream = new FXIO(xPiece, true);
             for (int i = 0; i < (xPiece.Length / 2); i += 8)
             {
                 xStream.Position = i;
@@ -390,7 +389,7 @@ namespace X360.Security.Cryptography
             if ((xPiece.Length % 8) != 0)
                 throw new Exception("Input not divisible by 8");
             int xSpot = 5, xCurrent = 5;
-            DJsIO xStream = new DJsIO(xPiece, true);
+            FXIO xStream = new FXIO(xPiece, true);
             xStream.Position = 0;
             byte[] xHalf1 = xStream.ReadBytes((xPiece.Length / 2));
             byte[] xHalf2 = xStream.ReadBytes((xPiece.Length / 2));

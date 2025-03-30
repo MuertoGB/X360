@@ -78,7 +78,7 @@
     <Compile Include="GDFX\Create.cs" />
     <Compile Include="GDFX\GDFImage.cs" />
     <Compile Include="Media\Music.cs" />
-    <Compile Include="IO\DJsIO.cs" />
+    <Compile Include="IO\FXIO.cs" />
     <Compile Include="Other\Other.cs" />
     <Compile Include="Profile\DashGPD.cs" />
     <Compile Include="Profile\GameGPD.cs" />

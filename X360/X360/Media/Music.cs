@@ -1,20 +1,18 @@
 ﻿// NOTE This class is protected under GPL License as well as terms and conditions.
-/* */ // Most notably, you must not obfuscate/protect this code, you must include an open source
-/* */ // to your project that uses this code, and you must also not make profit on it.
-/* */ // For more details, access:
+// Most notably, you must not obfuscate/protect this code, you must include an open source
+// to your project that uses this code, and you must also not make profit on it.
+// For more details, access:
 // *http://www.gnu.org/
 // *License included in the library source
 // *License located at X360.PublicResources.GPL30
 // *X360.XAbout.GNUProtected for GNU and TaC (Terms and Conditions)
-/* */ // You agree to these terms when you use this code.
+// You agree to these terms when you use this code.
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using X360.IO;
 using X360.STFS;
-using System.Runtime.CompilerServices;
 
 namespace X360.Media
 {
@@ -26,11 +24,11 @@ namespace X360.Media
     {
         [CompilerGenerated]
         static readonly Exception xNotMusic = new Exception("Invalid music package input");
-        
+
         /// <summary>
         /// Not a music package
         /// </summary>
-        public static Exception NotMusic { get { return xNotMusic; }}
+        public static Exception NotMusic { get { return xNotMusic; } }
     }
 
     /// <summary>
@@ -41,32 +39,32 @@ namespace X360.Media
         [CompilerGenerated]
         string so, al, ar, ge;
         [CompilerGenerated]
-        DJsIO IO;
+        FXIO IO;
         /// <summary>
         /// Song title
         /// </summary>
         [CompilerGenerated]
-        public string Song { get { return so; }}
+        public string Song { get { return so; } }
         /// <summary>
         /// Artist
         /// </summary>
         [CompilerGenerated]
-        public string Artist { get { return ar; }}
+        public string Artist { get { return ar; } }
         /// <summary>
         /// Album
         /// </summary>
         [CompilerGenerated]
-        public string Album { get { return al; }}
+        public string Album { get { return al; } }
         /// <summary>
         /// Genre
         /// </summary>
         [CompilerGenerated]
-        public string Genre { get { return ge; }}
+        public string Genre { get { return ge; } }
         /// <summary>
         /// Size of file
         /// </summary>
         [CompilerGenerated]
-        public long WMASize { get { return (IO.Length - 0xD08); }}
+        public long WMASize { get { return (IO.Length - 0xD08); } }
         [CompilerGenerated]
         bool xActive = false;
 
@@ -77,7 +75,7 @@ namespace X360.Media
         public MusicFile(string FileLocale)
         {
             xActive = true;
-            DJsIO xIO = new DJsIO(FileLocale, DJFileMode.Open, true);
+            FXIO xIO = new FXIO(FileLocale, DJFileMode.Open, true);
             if (!xIO.Accessed)
                 throw STFSExcepts.ParseError;
             try
@@ -98,7 +96,7 @@ namespace X360.Media
             catch { xIO.Dispose(); throw STFSExcepts.ParseError; }
         }
 
-        void xExtract(ref DJsIO xIOOut)
+        void xExtract(ref FXIO xIOOut)
         {
             xIOOut.Position = 0;
             IO.Position = 0xD08;
@@ -116,7 +114,7 @@ namespace X360.Media
         /// </summary>
         /// <param name="xIOOut"></param>
         /// <returns></returns>
-        public bool ExtractWMA(DJsIO xIOOut)
+        public bool ExtractWMA(FXIO xIOOut)
         {
             if (xActive)
                 return false;
@@ -140,7 +138,7 @@ namespace X360.Media
             xActive = true;
             try
             {
-                DJsIO xIO = new DJsIO(DJFileMode.Create, "Save Where?", "Windows Music File|*.wma", true);
+                FXIO xIO = new FXIO(DJFileMode.Create, "Save Where?", "Windows Music File|*.wma", true);
                 if (!xIO.Accessed)
                     return (xActive = false);
                 xExtract(ref xIO);
