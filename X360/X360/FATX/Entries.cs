@@ -270,84 +270,132 @@ namespace X360.FATX
     /// </summary>
     public sealed class FATXFileEntry : FATXEntry
     {
-        internal FATXFileEntry(FATXEntry x, ref FATXDrive xdrive)
-            : base(ref x, ref xdrive) { }
+        internal FATXFileEntry(FATXEntry x, ref FATXDrive xdrive) : base(ref x, ref xdrive) { }
 
         /// <summary>
         /// Overwrite the file
         /// </summary>
-        /// <param name="FileIn"></param>
+        /// <param name="inFile"></param>
         /// <returns></returns>
-        public bool Inject(string FileIn)
+        public bool Inject(string inFile)
         {
             if (FXDrive.ActiveCheck())
+            {
                 return false;
-            DJsIO xIOIn = null;
-            try { xIOIn = new DJsIO(FileIn, DJFileMode.Open, true); }
-            catch { return (FXDrive.xActive = false); }
-            if (xIOIn == null || !xIOIn.Accessed)
-                return (FXDrive.xActive = false);
-            try { return xInject(xIOIn) & !(FXDrive.xActive = false); }
-            catch { xIOIn.Close(); return (FXDrive.xActive = false); }
+            }
+
+            DJsIO inIO;
+
+            try
+            {
+                inIO = new DJsIO(inFile, DJFileMode.Open, true);
+            }
+            catch
+            {
+                return FXDrive.xActive = false;
+            }
+
+            if (inIO == null || !inIO.Accessed)
+            {
+                return FXDrive.xActive = false;
+            }
+
+            try
+            {
+                return InjectInternal(inIO) & !(FXDrive.xActive = false);
+            }
+            catch
+            {
+                inIO.Close();
+                return FXDrive.xActive = false;
+            }
         }
 
-        internal bool xInject(DJsIO xIOIn)
+        internal bool InjectInternal(DJsIO inIO)
         {
-            List<uint> blocks = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
-            if (blocks.Count == 0)
-                throw new Exception();
-            uint xct = xIOIn.BlockCountFATX(Partition);
-            if (blocks.Count < xct)
+            List<uint> blockChain = new List<uint>(Partition.xTable.GetBlocks(StartBlock));
+
+            if (blockChain.Count == 0)
             {
-                uint[] blocks2 = Partition.xTable.GetNewBlockChain((uint)(xct - blocks.Count), 1);
-                if (blocks2.Length == 0)
-                    throw new Exception();
-                blocks.AddRange(blocks2);
-                uint[] x = blocks.ToArray();
-                if (!Partition.xTable.WriteChain(ref x))
-                    throw new Exception();
+                throw new Exception("No blocks found in the partition table.");
             }
-            else if (blocks.Count > xct)
+
+            uint requiredBlockCount = inIO.BlockCountFATX(Partition);
+
+            if (blockChain.Count < requiredBlockCount)
             {
-                uint[] xUnneeded = new uint[blocks.Count - xct];
-                for (uint i = xct; i < blocks.Count; i++)
+                uint[] additionalBlocks = Partition.xTable.GetNewBlockChain((uint)(requiredBlockCount - blockChain.Count), 1);
+                if (additionalBlocks.Length == 0)
                 {
-                    xUnneeded[(int)i] = i;
-                    blocks.RemoveAt((int)i--);
+                    throw new Exception("Failed to retrieve new block chain.");
+                }            
+                blockChain.AddRange(additionalBlocks);
+                uint[] updatedBlockChain = blockChain.ToArray();
+                if (!Partition.xTable.WriteChain(ref updatedBlockChain))
+                {
+                    throw new Exception("Failed to write the block chain.");
                 }
-                if (!Partition.xTable.DC(ref xUnneeded))
-                    throw new Exception();
             }
-            xIOIn.Position = 0;
-            FXDrive.GetIO();
-            foreach (uint i in blocks)
+            else if (blockChain.Count > requiredBlockCount)
             {
-                FXDrive.xIO.Position = Partition.BlockToOffset(i);
-                FXDrive.xIO.Write(xIOIn.ReadBytes(Partition.xBlockSize));
+                uint[] blocksToRelease = new uint[blockChain.Count - requiredBlockCount];
+                for (uint i = requiredBlockCount; i < blockChain.Count; i++)
+                {
+                    blocksToRelease[(int)i] = i;
+                    blockChain.RemoveAt((int)i--);
+                }
+                if (!Partition.xTable.DC(ref blocksToRelease))
+                {
+                    throw new Exception("Failed to release unneeded blocks.");
+                }
             }
-            if ((FXEntrySize == 0 || (uint)(((FXEntrySize - 1) / Partition.xBlockSize) + 1) != xct) &&
-                !Partition.WriteAllocTable())
-                throw new Exception();
-            FXEntrySize = (int)xIOIn.Length;
-            xIOIn.Close();
+
+            inIO.Position = 0;
+            FXDrive.GetIO();
+            foreach (uint blockIndex in blockChain)
+            {
+                FXDrive.xIO.Position = Partition.BlockToOffset(blockIndex);
+                FXDrive.xIO.Write(inIO.ReadBytes(Partition.xBlockSize));
+            }
+
+            if ((FXEntrySize == 0 || (uint)(((FXEntrySize - 1) / Partition.xBlockSize) + 1) != requiredBlockCount) && !Partition.WriteAllocTable())
+            {
+                throw new Exception("Failed to write allocation table.");
+            }
+
+            FXEntrySize = (int)inIO.Length;
+            inIO.Close();
             return WriteEntryInternal();
         }
 
         /// <summary>
         /// Replace the file
         /// </summary>
-        /// <param name="FileIn"></param>
+        /// <param name="inFile"></param>
         /// <returns></returns>
-        public bool Replace(string FileIn)
+        public bool Replace(string inFile)
         {
             if (FXDrive.ActiveCheck())
+            {
                 return false;
-            DJsIO xIOIn = null;
-            try { xIOIn = new DJsIO(FileIn, DJFileMode.Open, true); }
-            catch { return (FXDrive.xActive = false); }
-            if (xIOIn == null || !xIOIn.Accessed)
-                return (FXDrive.xActive = false);
-            return xReplace(xIOIn) & !(FXDrive.xActive = false);
+            }
+
+            DJsIO inIO;
+
+            try
+            {
+                inIO = new DJsIO(inFile, DJFileMode.Open, true);
+            }
+            catch
+            {
+                return FXDrive.xActive = false;
+            }
+            if (inIO == null || !inIO.Accessed)
+            {
+                return FXDrive.xActive = false;
+            }
+
+            return xReplace(inIO) & !(FXDrive.xActive = false);
         }
 
         internal bool xReplace(DJsIO xIOIn)
@@ -765,7 +813,7 @@ namespace X360.FATX
                         if (xType == AddType.NoOverWrite)
                             return (FXDrive.xActive = false);
                         else if (xType == AddType.Inject)
-                            xreturn = x.xInject(xIOIn);
+                            xreturn = x.InjectInternal(xIOIn);
                         else xreturn = x.xReplace(xIOIn);
                         return (xreturn & !(FXDrive.xActive = false));
                     }
