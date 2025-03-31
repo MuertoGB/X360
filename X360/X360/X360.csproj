@@ -73,7 +73,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="About.cs" />
-    <Compile Include="FATX\Entries.cs" />
+    <Compile Include="FATX\FATXEntry.cs" />
+    <Compile Include="FATX\FATXFileEntry.cs" />
+    <Compile Include="FATX\FATXFolderEntry.cs" />
+    <Compile Include="FATX\FATXPartition.cs" />
+    <Compile Include="FATX\FATXReadContents.cs" />
     <Compile Include="FATX\Management.cs" />
     <Compile Include="GDFX\Create.cs" />
     <Compile Include="GDFX\GDFImage.cs" />

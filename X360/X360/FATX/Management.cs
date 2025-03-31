@@ -449,12 +449,12 @@ namespace X360.FATX
             if (Folders.Length == 1)
             {
                 FATXReadContents xread = new FATXReadContents();
-                xread.FXFEFiles = new List<FATXFileEntry>();
-                xread.FXFEFolders = new List<FATXFolderEntry>();
+                xread.FXRCFiles = new List<FATXFileEntry>();
+                xread.FXRCFolders = new List<FATXFolderEntry>();
                 foreach (FATXFolderEntry xz in Partitions[PartitionIndex].Folders)
-                    xread.FXFEFolders.Add(xz);
+                    xread.FXRCFolders.Add(xz);
                 foreach (FATXPartition xz in Partitions[PartitionIndex].SubPartitions)
-                    xread.FXFESubParts.Add(xz);
+                    xread.FXRCSubParts.Add(xz);
                 return xread;
             }
             FATXPartition xcurpart = FXDPartitions[PartitionIndex];
@@ -468,10 +468,10 @@ namespace X360.FATX
                 if (Folders.Length == 2)
                 {
                     FATXReadContents xread = new FATXReadContents();
-                    xread.FXFEFiles = new List<FATXFileEntry>();
-                    xread.FXFEFolders = new List<FATXFolderEntry>();
+                    xread.FXRCFiles = new List<FATXFileEntry>();
+                    xread.FXRCFolders = new List<FATXFolderEntry>();
                     foreach (FATXFolderEntry xz in xcurpart.Folders)
-                        xread.FXFEFolders.Add(xz);
+                        xread.FXRCFolders.Add(xz);
                     return xread;
                 }
                 break;

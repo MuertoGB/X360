@@ -21,3 +21,9 @@ Namespace X360.FATX.FATXFolderEntry
 
 - Old: xRead()
 - New: ReadContents()
+
+- Old: GetNewEntryPos()
+- New: GetNewEntryPosition()
+
+- Old: xExtract()
+- New: ExtractInternal()
